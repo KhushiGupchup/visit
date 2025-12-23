@@ -1,0 +1,49 @@
+/* Remove the "i" info icon */
+#qr-reader .html5-qrcode-info {
+  display: none !important;
+}
+
+/* Remove the camera/mobile icon */
+#qr-reader .html5-qrcode-camera-button {
+  display: none !important;
+}
+
+/* Center the QR box in the container */
+#qr-reader .html5-qrcode-scanner {
+  padding: 0 !important;
+  margin: 0 auto !important;
+  max-width: 100% !important;
+}
+
+/* Optional: adjust QR box styling */
+#qr-reader .html5-qrcode-video-preview {
+  border-radius: 12px;
+  border: 2px solid #2563eb; /* Tailwind blue-600 border */
+}
+
+
+#qr-reader__scan_region{
+        display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    
+}
+
+/* Target the info icon in Html5QrcodeScanner and hide it */
+#qr-reader img[alt="Info icon"] {
+  display: none !important;
+}
+
+#qr-reader{
+        position: relative;
+    padding: 0px;
+    border: 3px dashed silver !important;
+    height: 250px;
+    width: 600px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+

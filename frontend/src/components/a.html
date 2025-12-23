@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upcoming Visit Ticket Preview</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* This custom class ensures the cutout circles match the body background */
+        .ticket-bg {
+            background-color: #f3f4f6; /* Equivalent to bg-gray-100 */
+        }
+    </style>
+</head>
+<body class="ticket-bg min-h-screen p-8 flex justify-center items-center">
+
+    <div class="relative max-w-sm w-full my-4 flex items-center">
+
+        <div class="w-6 h-6 ticket-bg rounded-full -ml-3 z-20 absolute left-0 "></div>
+
+        <div class="flex flex-1 bg-white border border-gray-200 rounded-xl shadow-md hover:shadow-lg relative overflow-hidden">
+
+            <div class="flex items-center justify-center p-4 relative z-10">
+                <img
+                    src="https://via.placeholder.com/100x100?text=QR+Code"
+                    alt="Visitor QR"
+                    class="w-24 h-24 border rounded-lg object-contain"
+                />
+            </div>
+
+            <div class="w-px bg-transparent border-l-2 border-dashed border-gray-300 my-4"></div>
+
+            <div class="flex-1 p-4 flex flex-col justify-center gap-1 relative z-10 text-sm">
+                <h3 class="font-bold text-gray-800 text-lg mb-1">Visit Scheduled</h3>
+                
+                <div class='flex gap-1'>
+                    <strong class='text-gray-600'>Date:</strong> 
+                    <span class='text-gray-800'>Dec 20, 2025</span>
+                </div>
+                <div class='flex gap-1'>
+                    <strong class='text-gray-600'>Time:</strong> 
+                    <span class='text-gray-800'>10:00 AM</span>
+                </div>
+                <div class='flex gap-1'>
+                    <strong class='text-gray-600'>Host:</strong> 
+                    <span class='text-gray-800'>Jane Doe</span>
+                </div>
+                <p class="truncate text-gray-800">
+                    <strong class='text-gray-600'>Purpose:</strong> Team collaboration meeting on Project X deliverables...
+                </p>
+
+                <span
+                    class="mt-2 px-3 py-1 rounded-full text-xs font-semibold uppercase w-fit bg-green-100 text-green-700"
+                >
+                    Approved
+                </span>
+            </div>
+        </div>
+
+        <div class="w-6 h-6 ticket-bg rounded-full -mr-3 z-20 absolute right-0"></div>
+        
+    </div>
+
+</body>
+</html>
