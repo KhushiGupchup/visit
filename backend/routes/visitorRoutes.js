@@ -11,8 +11,7 @@ const upload = require("../middleware/upload"); // multer upload
 const Visitor = require("../models/Visitor");
 
 
-// --------------------- Visitor Auth Routes ---------------------
-// Register visitor
+//Visitor Auth Routes  Register visitor
 router.post("/register", registerVisitor);
 
 //register form
@@ -22,14 +21,14 @@ router.post("/add", upload.single("photo"), registerVisitorForm);
 // Login visitor
 router.post("/visitor/login", loginVisitor);
 
-// --------------------- Visitor Visit Routes ---------------------
+//  Visitor Visit Routes
 // Schedule a visit (must be logged in)
 router.post("/schedule-visit", visitorAuth, upload.single("photo"), addVisitor);
 
 // Get logged-in visitor visits
 router.get("/my-visits", visitorAuth, getMyVisits);
 
-// --------------------- Available Slots ---------------------
+//  Available Slots 
 router.get("/available-slots/:empId/:date", async (req, res) => {
   try {
     const { empId, date } = req.params;
@@ -67,3 +66,4 @@ router.get("/available-slots/:empId/:date", async (req, res) => {
 });
 
 module.exports = router;
+
