@@ -5,7 +5,7 @@ const connectDB = require("./config/db");
 
 const seedAdmin = async () => {
   try {
-    console.log("🌱 Starting Admin Seeding...");
+    console.log(" Starting Admin Seeding...");
 
     // Connect to MongoDB
     await connectDB();
@@ -17,7 +17,7 @@ const seedAdmin = async () => {
     // Check if admin already exists
     const existingAdmin = await User.findOne({ email });
     if (existingAdmin) {
-      console.log(`✔ Admin already exists: ${existingAdmin.email}`);
+      console.log(` Admin already exists: ${existingAdmin.email}`);
       process.exit();
     }
 
@@ -33,12 +33,13 @@ const seedAdmin = async () => {
       department: "Management",
     });
 
-    console.log("🎉 Admin created successfully:", admin.email);
+    console.log(" Admin created successfully:", admin.email);
     process.exit();
   } catch (error) {
-    console.error("❌ Error while seeding admin:", error.message);
+    console.error(" Error!! while seeding admin:", error.message);
     process.exit(1);
   }
 };
 
 seedAdmin();
+
