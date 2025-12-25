@@ -187,16 +187,30 @@ exports.reports = async (req, res) => {
       })
     );
 
-    // Weekly visitor counts (last 7 days)
+   
+   // count visitors for last 7 days
     const weekly = [];
+    
     for (let i = 6; i >= 0; i--) {
-      const d = new Date();
-      d.setDate(d.getDate() - i);//date  and to check 1 day visit 
-      const dayStart = new Date(d.setHours(0, 0, 0, 0));
-      const dayEnd = new Date(d.setHours(23, 59, 59, 999));
-      const count = await Visitor.countDocuments({ createdAt: { $gte: dayStart, $lte: dayEnd } });//how many visitor we have
-      weekly.push({ day: dayStart.toISOString().split("T")[0], count });//add date & count not time
+      // get the date i days ago
+      const date = new Date();
+      date.setDate(date.getDate() - i);
+    
+      // count visitors for this day
+      const count = await Visitor.countDocuments({
+        createdAt: {
+          $gte: new Date(date.setHours(0, 0, 0, 0)), // start of day
+          $lte: new Date(date.setHours(23, 59, 59, 999)) // end of day
+        }
+      });
+    
+      // add date only not time  and count
+      weekly.push({
+        day: date.toISOString().split("T")[0],
+        count
+      });
     }
+    
 
     // Respond with full report data
     res.json({
@@ -211,6 +225,7 @@ exports.reports = async (req, res) => {
     res.status(500).json({ msg: "Error generating reports", error: err.message });
   }
 };
+
 
 
 
