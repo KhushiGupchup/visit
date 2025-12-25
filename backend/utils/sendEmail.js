@@ -1,4 +1,4 @@
-const nodemailer = require("nodemailer");
+const nodemailer = require("nodemailer");//library to send email
 
 const sendEmail = async (to, subject, html, attachments = []) => {
   try {
@@ -27,3 +27,4 @@ const sendEmail = async (to, subject, html, attachments = []) => {
 };
 
 module.exports = sendEmail;
+
