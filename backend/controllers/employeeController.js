@@ -9,25 +9,25 @@ const { generatePDF } = require("../utils/generatePDF");
 const { generateVisitorPassImage } = require("../utils/paasImage");
 const sendEmail = require("../utils/sendEmail");
 
-// ===== Dashboard =====
-// 
+// Employee Dashboard 
+
 exports.dashboard = async (req, res) => {
   try {
     const empId = Number(req.user.empId);
 
-    // Date boundaries
+    // Date to get visitors
     const todayStart = new Date();
     todayStart.setHours(0, 0, 0, 0);
 
     const todayEnd = new Date();
     todayEnd.setHours(23, 59, 59, 999);
 
-    // Total visitors
+    // Total visitors for particulat employee
     const myVisitors = await Visitor.countDocuments({
       hostEmpId: empId,
     });
 
-    // Pending visitors
+    // Pending visitors of that employee
     const pendingVisitors = await Visitor.countDocuments({
       hostEmpId: empId,
       status: "pending",
@@ -60,21 +60,21 @@ exports.dashboard = async (req, res) => {
 };
 
 
-// ===== Schedule Visitor =====
+//  Schedule Visitor by employee
 exports.scheduleVisitor = async (req, res) => {
   try {
-    const { name, email, phone, purpose, scheduledAt } = req.body;
+    const { name, email, phone, purpose, scheduledAt } = req.body;//get all fields
+  
+    const dateObj = new Date(scheduledAt);// to get easy way of js date
 
-    const dateObj = new Date(scheduledAt);
-
-    // Determine slot
+    // Determine slot from the date which is selected
     let slot = "other";
     const hours = dateObj.getHours();
     if (hours >= 9 && hours < 11) slot = "slot1";
     else if (hours >= 11 && hours < 14) slot = "slot2";
     else if (hours >= 14 && hours < 15) slot = "slot3";
 
-    // Create visitor
+    // Create visitor and status will be approved
     const visitor = await Visitor.create({
       name,
       email,
@@ -86,27 +86,41 @@ exports.scheduleVisitor = async (req, res) => {
       slot
     });
 
-    // Get host info
+    // Get host from empid
     const host = await User.findOne({ empId: req.user.empId });
 
-    // Generate QR
+    // Generate QR for scan
     const qrData = await generateQRBase64(JSON.stringify({ visitorId: visitor._id }));
 
-    // Generate PDF
-    const pdfDir = path.join(__dirname, "../uploads/pdfPass");
-    if (!fs.existsSync(pdfDir)) fs.mkdirSync(pdfDir, { recursive: true });
-    const pdfPath = path.join(pdfDir, `${visitor._id}.pdf`);
-    await generatePDF({ ...visitor._doc, hostName: host?.name }, qrData, pdfPath);
+        // Generate PDF for visitor
+      
+    const pdfDirectory = path.join(__dirname, "../uploads/pdfPass");
+    
+    //  Create the folder if it doesn't exist
+    if (!fs.existsSync(pdfDirectory)) {
+      fs.mkdirSync(pdfDirectory, { recursive: true });
+    }
+    
+    //   the PDF file name (visitorId.pdf)
+    const pdfFilePath = path.join(pdfDirectory, `${visitor._id}.pdf`);
+    
+    // Generate the PDF with visitor info and QR code
+    await generatePDF(
+      { ...visitor._doc, hostName: host?.name }, 
+      qrData,                                   
+      pdfFilePath                               
+    );
+
 
     // Generate PNG pass
     const passImage = await generateVisitorPassImage({ ...visitor._doc, hostName: host?.name });
 
-    // Update visitor
+    // Update visitor with qr and pdf as schedule means already approved
     visitor.qrData = qrData;
     visitor.passPdf = pdfPath;
     await visitor.save();
 
-    // Send email
+    // Send email to visitor which is already approved
     if (email) {
       const qrBuffer = Buffer.from(qrData.split(",")[1], "base64");
       const emailHTML = `
@@ -122,7 +136,7 @@ exports.scheduleVisitor = async (req, res) => {
           </div>
         </div>
       `;
-
+    //send all files
       await sendEmail(email, "Your VPMS Visitor Pass", emailHTML, [
         { filename: "VisitorPass.png", content: passImage, cid: "visitor_pass" },
         { filename: "VisitorPass.pdf", path: pdfPath },
@@ -141,8 +155,8 @@ exports.scheduleVisitor = async (req, res) => {
 // Get Employee Visitors 
 exports.getMyVisitors = async (req, res) => {
   try {
-    const visitors = await Visitor.find({ hostEmpId: Number(req.user.empId) }).sort({ scheduledAt: -1 });
-
+    const visitors = await Visitor.find({ hostEmpId: Number(req.user.empId) }).sort({ scheduledAt: -1 });//latest visitor
+     // get all data and hostname from empid
     const formatted = await Promise.all(visitors.map(async (v) => {
       const host = await User.findOne({ empId: v.hostEmpId });
       return {
@@ -169,10 +183,10 @@ exports.getMyVisitors = async (req, res) => {
 };
 
 
-//  Change Password 
+//  Change Password after using random password once 
 exports.changePassword = async (req, res) => {
   try {
-    const { empId, newPassword, confirmPassword } = req.body;
+    const { empId, newPassword, confirmPassword } = req.body;//get all req field
 
     if (!empId || !newPassword || !confirmPassword)
       return res.status(400).json({ msg: "All fields are required" });
@@ -212,7 +226,7 @@ exports.deleteVisitor = async (req, res) => {
   }
 };
 
-// Approve Visitor
+// Approve Visitor and send the qr and pdfpass to them
 
 exports.approveVisitor = async (req, res) => {
   try {
@@ -236,7 +250,7 @@ exports.approveVisitor = async (req, res) => {
       );
     }
 
-    /* ------------------ GENERATE PDF PASS ------------------ */
+    /* GENERATE PDF PASS  */
     const pdfDir = path.join(__dirname, "../uploads/pdfPass");
     if (!fs.existsSync(pdfDir)) fs.mkdirSync(pdfDir, { recursive: true });
 
@@ -248,7 +262,7 @@ exports.approveVisitor = async (req, res) => {
     );
     visitor.passPdf = pdfPath;
 
-    /* ------------------ GENERATE PNG PASS ------------------ */
+    /*  GENERATE PNG PASS  */
     const passImage = await generateVisitorPassImage({
       ...visitor._doc,
       hostName: host?.name,
@@ -263,7 +277,7 @@ exports.approveVisitor = async (req, res) => {
 
     await visitor.save();
 
-    /* ------------------ SEND EMAIL ------------------ */
+    /*  SEND EMAIL  */
     if (visitor.email) {
       const qrBuffer = Buffer.from(
         visitor.qrData.split(",")[1],
@@ -311,7 +325,7 @@ exports.approveVisitor = async (req, res) => {
 
 
 
-// ===== Reject Visitor =====
+//  Reject Visitor if dont want 
 exports.rejectVisitor = async (req, res) => {
   try {
     const { visitorId } = req.params;
@@ -346,7 +360,7 @@ exports.rejectVisitor = async (req, res) => {
   }
 };
 
-// employeeController.js
+// add visitor by employee
 exports.addVisitorByEmployee = async (req, res) => {
   try {
     // Employee scheduling a visitor
@@ -373,8 +387,7 @@ exports.addVisitorByEmployee = async (req, res) => {
 
     const newVisit = await Visitor.create(visitorData);
 
-    // Optionally generate QR code here
-    // const qrData = await generateQR(newVisit);
+   
 
     res.status(201).json({ msg: "Visitor scheduled successfully", data: newVisit });
 
@@ -383,3 +396,4 @@ exports.addVisitorByEmployee = async (req, res) => {
     res.status(500).json({ msg: "Server Error" });
   }
 };
+
