@@ -3,7 +3,7 @@ const Employee = require("../models/User");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 
-
+//add visitor through form registration
 exports.addVisitor = async (req, res) => {
   try {
     const visitor = req.visitor; // from JWT token
@@ -15,11 +15,11 @@ exports.addVisitor = async (req, res) => {
       return res.status(404).json({ msg: "Employee not found for given ID" });
     }
 
-    //  Validate slot
+    //  check slot
     const allowedSlots = ["slot1", "slot2", "slot3", "other"];
     let slot = allowedSlots.includes(req.body.slot) ? req.body.slot : "other";
 
-    //   visit data
+    //   visitor data from form
     const visitorData = {
       name: req.body.name,            // visitor name from form
       email: visitor.email,           // logged-in visitor email
@@ -185,4 +185,5 @@ exports.registerVisitorForm = async (req, res) => {
     res.status(500).json({ msg: "Server Error" });
   }
 };
+
 
