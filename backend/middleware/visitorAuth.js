@@ -1,4 +1,4 @@
-// backend/middlewares/visitorAuth.js
+
 const jwt = require("jsonwebtoken");
 const Visitor = require("../models/Visitor"); // Make sure this model exists
 
@@ -24,3 +24,4 @@ const visitorAuth = async (req, res, next) => {
 };
 
 module.exports = visitorAuth;
+
