@@ -3,7 +3,7 @@ const Visitor = require("../models/Visitor");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 
-// --------------------- REGISTER USER ---------------------
+//  REGISTER USER 
 exports.registerUser = async (req, res) => {
   try {
     const { email, password, role, name, empId } = req.body;
@@ -34,7 +34,7 @@ exports.registerUser = async (req, res) => {
   }
 };
 
-// --------------------- REGISTER VISITOR ---------------------
+//  REGISTER VISITOR to have login
 exports.registerVisitor = async (req, res) => {
   try {
     const { email, password, confirmPassword } = req.body;
@@ -64,7 +64,7 @@ exports.registerVisitor = async (req, res) => {
   }
 };
 
-// --------------------- LOGIN (User + Visitor) ---------------------
+//  LOGIN (User + Visitor)
 exports.login = async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -75,7 +75,7 @@ exports.login = async (req, res) => {
     const loginEmail = email.trim().toLowerCase();
     const loginPassword = password.trim();
 
-    // --- Search in Users first ---
+    //  Search in Users first 
     let user = await User.findOne({ email: { $regex: `^${loginEmail}$`, $options: "i" } });
     if (user) {
       const match = await bcrypt.compare(loginPassword, user.password);
@@ -97,7 +97,7 @@ exports.login = async (req, res) => {
       });
     }
 
-    // --- Search in Visitors ---
+    //  Search in Visitors 
    const visitor = await Visitor.findOne({
   email: { $regex: `^${loginEmail}$`, $options: "i" },
   password: { $exists: true }
@@ -132,3 +132,4 @@ exports.login = async (req, res) => {
     res.status(500).json({ msg: "Server Error" });
   }
 };
+
