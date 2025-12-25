@@ -46,7 +46,7 @@ exports.addVisitor = async (req, res) => {
 
   } catch (err) {
     console.error("Schedule Visit Error:", err);
-    res.status(500).json({ msg: "Server Error" });
+    res.status(500).json({ msg: "Error in scheduling visit" });
   }
 };
 
@@ -185,6 +185,7 @@ exports.registerVisitorForm = async (req, res) => {
     res.status(500).json({ msg: "Server Error" });
   }
 };
+
 
 
 
