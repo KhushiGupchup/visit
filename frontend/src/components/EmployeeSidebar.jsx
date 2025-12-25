@@ -77,7 +77,7 @@ export default function SidebarEmployee() {
         </button>
       </div>
 {/* Mobile Sidebar + Overlay */}
-{/* Mobile Sidebar + Overlay */}
+
 {isOpen && (
   <>
     {/* Overlay covers full screen including topbar */}
@@ -158,3 +158,4 @@ export default function SidebarEmployee() {
     </>
   );
 }
+
