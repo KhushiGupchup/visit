@@ -97,17 +97,17 @@ exports.getMyVisits = async (req, res) => {
 //  VISITOR LOGIN 
 exports.loginVisitor = async (req, res) => {
   try {
-    const { email, password } = req.body;
+    const { email, password } = req.body;//take data
 
     if (!email || !password)
       return res.status(400).json({ msg: "Please enter both email and password" });
 
-    const visitor = await Visitor.findOne({ email: email.trim().toLowerCase() });
+    const visitor = await Visitor.findOne({ email: email.trim().toLowerCase() });//check for visitor
 
     if (!visitor)
       return res.status(404).json({ msg: "Visitor not found" });
 
-    const isMatch = await bcrypt.compare(password, visitor.password);
+    const isMatch = await bcrypt.compare(password, visitor.password);//compare hash password 
     if (!isMatch)
       return res.status(400).json({ msg: "Invalid credentials" });
 
@@ -150,11 +150,11 @@ exports.registerVisitorForm = async (req, res) => {
       return res.status(400).json({ msg: "All fields are required" });
     }
 
-    //  Get host employee
+    //  Get host by  emp id
     const host = await Employee.findOne({ empId: Number(hostEmpId) });
     if (!host) return res.status(404).json({ msg: "Employee not found" });
 
-    //  Validate slot
+    //  check slot
     const allowedSlots = ["slot1", "slot2", "slot3", "other"];
     const selectedSlot = allowedSlots.includes(slot) ? slot : "other";
 
@@ -185,5 +185,6 @@ exports.registerVisitorForm = async (req, res) => {
     res.status(500).json({ msg: "Server Error" });
   }
 };
+
 
 
