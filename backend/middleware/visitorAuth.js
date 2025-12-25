@@ -1,9 +1,9 @@
 
 const jwt = require("jsonwebtoken");
-const Visitor = require("../models/Visitor"); // Make sure this model exists
+const Visitor = require("../models/Visitor"); // visitor
 
 const visitorAuth = async (req, res, next) => {
-  let token = req.headers["authorization"];
+  let token = req.headers["authorization"];//get token
   if (!token) return res.status(401).json({ msg: "Access Denied - No Token" });
 
   if (token.startsWith("Bearer ")) token = token.slice(7);
@@ -24,4 +24,5 @@ const visitorAuth = async (req, res, next) => {
 };
 
 module.exports = visitorAuth;
+
 
