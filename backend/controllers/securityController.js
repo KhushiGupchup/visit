@@ -1,9 +1,9 @@
 const Visitor = require("../models/Visitor");
 const CheckLog = require("../models/CheckLogs");
 
-// ==============================
+
 // Get all approved visitors
-// ==============================
+
 exports.getVisitors = async (req, res) => {
   try {
     const visitors = await Visitor.find({ status: "approved" }).sort({ scheduledAt: -1 });
@@ -14,9 +14,9 @@ exports.getVisitors = async (req, res) => {
   }
 };
 
-// ==============================
+
 // Scan QR - Check In / Check Out
-// ==============================
+
 exports.scanQR = async (req, res) => {
   try {
     const { qrPayload } = req.body;
@@ -43,7 +43,7 @@ exports.scanQR = async (req, res) => {
       // Already checked out
     }
 
-    // Populate visitor info
+    // get the visitor info
     log = await log.populate("visitor", "name email");
 
     // Restructure log for front-end: put name/email at root
@@ -71,9 +71,9 @@ exports.scanQR = async (req, res) => {
 };
 
 
-// ==============================
+
 // Visitors currently inside
-// ==============================
+
 exports.visitorsInside = async (req, res) => {
   try {
     const logs = await CheckLog.find({
@@ -97,7 +97,7 @@ exports.visitorsInside = async (req, res) => {
   }
 };
 
-// securityController.js
+//get all vistor logs 
 exports.getVisitorLogs = async (req, res) => {
   try {
     const logs = await CheckLog.find()
@@ -119,5 +119,6 @@ exports.getVisitorLogs = async (req, res) => {
     res.status(500).json({ msg: "Server error", error: err.message });
   }
 };
+
 
 
