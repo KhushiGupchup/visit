@@ -6,18 +6,18 @@ const jwt = require("jsonwebtoken");
 //  REGISTER USER 
 exports.registerUser = async (req, res) => {
   try {
-    const { email, password, role, name, empId } = req.body;
+    const { email, password, role, name, empId } = req.body;//take the all fields from employee add form
 
     if (!email || !password || !role) {
       return res.status(400).json({ msg: "All required fields must be filled" });
     }
 
     const emailLower = email.trim().toLowerCase();
-    const exists = await User.findOne({ email: emailLower });
+    const exists = await User.findOne({ email: emailLower });//find the email
     if (exists) return res.status(400).json({ msg: "User already exists" });
 
-    const hashed = await bcrypt.hash(password.trim(), 10);
-
+    const hashed = await bcrypt.hash(password.trim(), 10);//hashed the password
+    //store the details
     const newUser = new User({
       email: emailLower,
       password: hashed,
@@ -46,11 +46,11 @@ exports.registerVisitor = async (req, res) => {
       return res.status(400).json({ msg: "Passwords do not match" });
 
     const emailLower = email.trim().toLowerCase();
-    const exists = await Visitor.findOne({ email: emailLower });
+    const exists = await Visitor.findOne({ email: emailLower });//find visitor email 
     if (exists) return res.status(400).json({ msg: "Visitor already exists" });
 
     const hashed = await bcrypt.hash(password.trim(), 10);
-
+//add the visitor email and password
     const newVisitor = new Visitor({
       email: emailLower,
       password: hashed,
@@ -64,7 +64,7 @@ exports.registerVisitor = async (req, res) => {
   }
 };
 
-//  LOGIN (User + Visitor)
+//  LOGIN both for user and visitor
 exports.login = async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -83,7 +83,7 @@ exports.login = async (req, res) => {
 
       const token = jwt.sign(
         { id: user._id, role: user.role, empId: user.empId, name: user.name },
-        process.env.JWT_SECRET || "SECRET_KEY",
+        process.env.JWT_SECRET ",
         { expiresIn: "1d" }
       );
 
@@ -97,7 +97,7 @@ exports.login = async (req, res) => {
       });
     }
 
-    //  Search in Visitors 
+    //  Search in Visitors if visitor is login
    const visitor = await Visitor.findOne({
   email: { $regex: `^${loginEmail}$`, $options: "i" },
   password: { $exists: true }
@@ -113,7 +113,7 @@ exports.login = async (req, res) => {
 
       const token = jwt.sign(
         { id: visitor._id, role: "visitor", email: visitor.email },
-        process.env.JWT_SECRET || "SECRET_KEY",
+        process.env.JWT_SECRET ",
         { expiresIn: "1d" }
       );
 
@@ -125,11 +125,12 @@ exports.login = async (req, res) => {
       });
     }
 
-    // Neither found
+    // if email not found in user or visitor for login
     return res.status(404).json({ msg: "User not found" });
   } catch (err) {
     console.error(err);
     res.status(500).json({ msg: "Server Error" });
   }
 };
+
 
