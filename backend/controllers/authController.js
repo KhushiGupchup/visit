@@ -83,7 +83,7 @@ exports.login = async (req, res) => {
 
       const token = jwt.sign(
         { id: user._id, role: user.role, empId: user.empId, name: user.name },
-        process.env.JWT_SECRET ,
+        process.env.JWT_SECRET,
         { expiresIn: "1d" }
       );
 
@@ -113,7 +113,7 @@ exports.login = async (req, res) => {
 
       const token = jwt.sign(
         { id: visitor._id, role: "visitor", email: visitor.email },
-        process.env.JWT_SECRET ",
+        process.env.JWT_SECRET,
         { expiresIn: "1d" }
       );
 
@@ -132,6 +132,7 @@ exports.login = async (req, res) => {
     res.status(500).json({ msg: "Server Error" });
   }
 };
+
 
 
 
