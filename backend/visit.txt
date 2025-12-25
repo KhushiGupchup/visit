@@ -1,1 +1,9 @@
+So this is backend for visio
+here 4 roles are handle
+1.admin 2.employee/host 3.security 4.visitor
+2 models user and visitor
+user - admin,employee,security
+visitor - visitor 
 
+routes and controllers are having all routes and logic to handle
+multer,qrcode,nodemailer is also used
