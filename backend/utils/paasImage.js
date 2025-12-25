@@ -1,16 +1,12 @@
-const sharp = require("sharp");
+const sharp = require("sharp");//library to convert svg to png
 const { generateQRBase64 } = require("./generateQR");
 
-/**
- * Generate visitor pass as PNG image
- * @param {object} visitor - visitor data with name, hostName, status, scheduledAt
- * @returns {Buffer} - PNG buffer
- */
+
 async function generateVisitorPassImage(visitor) {
-  // 1️ Generate QR code as base64
+  // Generate QR code which has visitor id
   const qrData = await generateQRBase64(JSON.stringify({ visitorId: visitor._id }));
 
-  // 2️ Create a simple SVG template for the visitor pass
+  //  Create a simple SVG template for the visitor pass
   const svg = `
     <svg width="400" height="600">
       <rect width="400" height="600" fill="#fff" stroke="#ccc" rx="20" ry="20"/>
@@ -37,10 +33,11 @@ async function generateVisitorPassImage(visitor) {
     </svg>
   `;
 
-  // 3️ Convert SVG to PNG using sharp
+  //  conver the svg into png image and save it 
   const pngBuffer = await sharp(Buffer.from(svg)).png().toBuffer();
 
-  return pngBuffer;
+  return pngBuffer;//give the saved image
 }
 
 module.exports = { generateVisitorPassImage };
+
