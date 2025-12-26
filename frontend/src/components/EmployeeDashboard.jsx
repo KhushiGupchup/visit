@@ -151,7 +151,7 @@ export default function EmployeeDashboard() {
             <p>Loading visitors...</p>
           ) : pendingVisitors.length === 0 ? (
             <div className="bg-white rounded-xl shadow p-6 md:p-8 w-full md:max-w-[650px]  text-center">
-              {/*in card if all approved no pending*/
+              {/*in card if all approved no pending */}
               <h3 className="text-lg font-semibold text-gray-700">
                  No Pending Visitors
               </h3>
@@ -173,7 +173,7 @@ export default function EmployeeDashboard() {
                   <p className="text-gray-500 mt-1">
                     {formatDate(v.scheduledAt)} at {formatTime(v.scheduledAt)}
                   </p>
-                  {/* approve  button in card*/}
+                  {/* approve  button in card */}
 
                   <div className="flex gap-2 mt-4">
                     <button
@@ -188,7 +188,7 @@ export default function EmployeeDashboard() {
                         : "Approve"}
                     </button>
                     
-                    {/* reject  button*/}
+                    {/* reject  button */}
 
                     <button
                       disabled={actionState.id === v._id}
@@ -210,4 +210,5 @@ export default function EmployeeDashboard() {
     </div>
   );
 }
+
 
