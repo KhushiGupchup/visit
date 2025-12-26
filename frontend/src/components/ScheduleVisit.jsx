@@ -1,7 +1,7 @@
 import { useState, useEffect, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import SidebarVisitor from "./VisitorSidebar";
+
 import Topbar from "./Topbar";
 import { AuthContext } from "../context/AuthContext.jsx";
 import logoVisio from "../assets/logo_new.png";
@@ -121,8 +121,8 @@ export default function ScheduleVisit() {
       data.append("purpose", formData.description);
       data.append("scheduledAt", scheduledAt.toISOString());
       data.append("slot", slotKey);
-      data.append("name", formData.name);       // ✅ Include name
-      data.append("phone", formData.phone);     // ✅ Include phone
+      data.append("name", formData.name);       //  Include name
+      data.append("phone", formData.phone);     //  Include phone
       if (formData.photo) data.append("photo", formData.photo);
 
       const token = localStorage.getItem("token");
@@ -308,3 +308,4 @@ export default function ScheduleVisit() {
     </div>
   );
 }
+
