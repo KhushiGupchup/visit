@@ -66,7 +66,7 @@ const LandingPage = () => {
             <FaQrcode className="text-teal-600 text-5xl mb-5" />
             <h3 className="text-2xl font-semibold mb-3">Smart QR Check-In</h3>
             <p className="text-gray-600 leading-relaxed">
-              Seamless entry using secure, encrypted QR-based visitor passes.
+             Quick, secure entry with QR codes.
             </p>
           </div>
 
@@ -75,7 +75,7 @@ const LandingPage = () => {
             <FaUserCheck className="text-teal-600 text-5xl mb-5" />
             <h3 className="text-2xl font-semibold mb-3">Quick Visitor Onboarding</h3>
             <p className="text-gray-600 leading-relaxed">
-              Register visitors with photos, IDs, and all required details.
+              Add visitors effortlessly with all necessary details.
             </p>
           </div>
 
@@ -84,7 +84,7 @@ const LandingPage = () => {
             <FaBell className="text-teal-600 text-5xl mb-5" />
             <h3 className="text-2xl font-semibold mb-3">Real-Time Alerts</h3>
             <p className="text-gray-600 leading-relaxed">
-              Instant email and SMS updates for approvals and check-ins.
+              Get instant notifications for approvals and check-ins on email.
             </p>
           </div>
 
@@ -93,7 +93,7 @@ const LandingPage = () => {
             <FaClipboardList className="text-teal-600 text-5xl mb-5" />
             <h3 className="text-2xl font-semibold mb-3">Appointment Management</h3>
             <p className="text-gray-600 leading-relaxed">
-              Invite, approve, and track visitors with ease.
+              Easily schedule, approve, and manage visitor appointments.
             </p>
           </div>
 
@@ -102,7 +102,7 @@ const LandingPage = () => {
             <FaIdBadge className="text-teal-600 text-5xl mb-5" />
             <h3 className="text-2xl font-semibold mb-3">Digital Visitor Pass</h3>
             <p className="text-gray-600 leading-relaxed">
-              Auto-generated PDF passes with QR for easy access.
+              Receive a ready-to-use digital pass with a QR code.
             </p>
           </div>
 
@@ -111,7 +111,7 @@ const LandingPage = () => {
             <FaChartBar className="text-teal-600 text-5xl mb-5" />
             <h3 className="text-2xl font-semibold mb-3">Interactive Analytics</h3>
             <p className="text-gray-600 leading-relaxed">
-              Track trends, logs, and visitor insights effortlessly.
+              Keep track of visitor trends and insights with ease.
             </p>
           </div>
 
@@ -127,7 +127,7 @@ const LandingPage = () => {
     <div>
       <h3 className="text-3xl font-extrabold tracking-wide">Visio</h3>
       <p className="text-gray-100 mt-3 leading-relaxed">
-        Smart Visitor Management for Modern Workplaces — secure, fast, and efficient.
+        Modern visitor management made simple, fast, and secure.
       </p>
     </div>
 
@@ -163,3 +163,4 @@ const LandingPage = () => {
 };
 
 export default LandingPage;
+
