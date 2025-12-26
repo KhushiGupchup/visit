@@ -1,5 +1,5 @@
 import { useEffect, useState, useContext } from "react";
-import Sidebar from "./Sidebar";
+
 import Topbar from "./Topbar";
 import api from "../utils/api";
 import { AuthContext } from "../context/AuthContext";
@@ -153,3 +153,4 @@ function Card({ title, value, color }) {
     </div>
   );
 }
+
