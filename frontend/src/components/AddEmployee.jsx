@@ -8,7 +8,7 @@ import Topbar from "./Topbar.jsx";
 export default function AddEmployee() {
   const { user } = useContext(AuthContext);
   const navigate = useNavigate();
-
+//take all data
   const [form, setForm] = useState({
     name: "",
     email: "",
@@ -17,17 +17,17 @@ export default function AddEmployee() {
   });
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
+    const token = localStorage.getItem("token");//get token
     if (!token || !user) navigate("/login");
   }, [navigate, user]);
-
+//on add employee call backend api
   const handleSubmit = async () => {
     try {
       await api.post("/admin/add-employee", form, {
         headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
       });
       alert("Employee created. Credentials emailed to employee.");
-      setForm({ name: "", email: "", department: "", role: "employee" });
+      setForm({ name: "", email: "", department: "", role: "employee" });//set all form values
     } catch (err) {
       alert(err.response?.data?.msg || "Error creating employee");
     }
@@ -44,14 +44,15 @@ export default function AddEmployee() {
            <div className="flex-1 flex flex-col overflow-auto pt-[144px] md:pt-20 md:ml-64">
              <Topbar />
 
-        {/* Scrollable content */}
+        {/* Form for employee */}
         <div className="flex-1 overflow-y-auto pt-24 md:p-8 flex flex-col justify-center items-center">
           <div className="bg-white shadow-lg rounded-xl p-6 sm:p-8 w-full max-w-lg mt-9 ">
             <h1 className="text-2xl font-bold text-gray-800 mb-6">
               Add New Employee
             </h1>
-
+          
             <div className="space-y-4">
+                {/* Name of employee*/}
               <input
                 type="text"
                 placeholder="Full Name"
@@ -59,6 +60,7 @@ export default function AddEmployee() {
                 onChange={(e) => setForm({ ...form, name: e.target.value })}
                 className="border p-3 w-full rounded-lg focus:ring-2 focus:ring-blue-400 outline-none"
               />
+              {/* email of emp*/}
               <input
                 type="email"
                 placeholder="Email Address"
@@ -66,6 +68,7 @@ export default function AddEmployee() {
                 onChange={(e) => setForm({ ...form, email: e.target.value })}
                 className="border p-3 w-full rounded-lg focus:ring-2 focus:ring-blue-400 outline-none"
               />
+              {/* department*/}
               <input
                 type="text"
                 placeholder="Department"
@@ -75,6 +78,7 @@ export default function AddEmployee() {
                 }
                 className="border p-3 w-full rounded-lg focus:ring-2 focus:ring-blue-400 outline-none"
               />
+               {/* role of employee*/}
               <select
                 value={form.role}
                 onChange={(e) => setForm({ ...form, role: e.target.value })}
@@ -84,7 +88,7 @@ export default function AddEmployee() {
                 <option value="security">Security</option>
               </select>
             </div>
-
+             {/* call the api*/}
             <button
               onClick={handleSubmit}
               className="w-full bg-teal-600 hover:bg-teal-700 text-white py-3 rounded-lg font-semibold mt-6 transition"
@@ -97,3 +101,4 @@ export default function AddEmployee() {
     </div>
   );
 }
+
