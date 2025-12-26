@@ -1,6 +1,6 @@
 import { useEffect, useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
-import Sidebar from "../components/Sidebar.jsx";
+
 import Topbar from "./Topbar.jsx";
 import api from "../utils/api.js";
 import { AuthContext } from "../context/AuthContext.jsx";
@@ -188,3 +188,4 @@ export default function VisitorList() {
     </div>
   );
 }
+
