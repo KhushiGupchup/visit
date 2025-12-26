@@ -39,7 +39,7 @@ export default function ChangePassword() {
             <h1 className="text-2xl font-bold text-gray-800 mb-6 text-center sm:text-left">
               Change Password
             </h1>
-            {/* here the emp id*/
+            {/* here the emp id*/}
             <div className="space-y-4">
               <input
                 type="number"
@@ -56,7 +56,7 @@ export default function ChangePassword() {
                 onChange={(e) => setForm({ ...form, email: e.target.value })}
                 className="border p-3 w-full rounded-lg focus:ring-2 focus:ring-blue-400 outline-none"
               />
-              {/* new password for set*/
+              {/* new password for set */}
               <input
                 type="password"
                 placeholder="New Password"
@@ -64,7 +64,7 @@ export default function ChangePassword() {
                 onChange={(e) => setForm({ ...form, newPassword: e.target.value })}
                 className="border p-3 w-full rounded-lg focus:ring-2 focus:ring-blue-400 outline-none"
               />
-                {/* confirm by again re enter*/}
+                {/* confirm by again re enter */}
               <input
                 type="password"
                 placeholder="Confirm Password"
@@ -73,7 +73,7 @@ export default function ChangePassword() {
                 className="border p-3 w-full rounded-lg focus:ring-2 focus:ring-blue-400 outline-none"
               />
             </div>
-            {/* call the function and api*/}
+            {/* call the function and api */}
             <button
               onClick={handleSubmit}
               className="w-full bg-teal-600 hover:bg-teal-700 text-white py-3 rounded-lg font-semibold mt-6 transition"
@@ -86,5 +86,6 @@ export default function ChangePassword() {
     </div>
   );
 }
+
 
 
