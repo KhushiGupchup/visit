@@ -34,7 +34,7 @@ export default function SidebarEmployee() {
     { name: "Schedule Visit", path: "/visitor/schedule-visit" },
   ];
 
-  /* Set links based on role using if/else */
+  /* set sidebar links based on user role */
   useEffect(() => {
     const data = JSON.parse(localStorage.getItem("user"));
     if (!data) return;
@@ -52,12 +52,12 @@ export default function SidebarEmployee() {
     }
   }, []);
 
-  /* Close sidebar on route change (mobile) */
+  /* close sidebar when route changes */
   useEffect(() => {
     setIsOpen(false);
   }, [location.pathname]);
 
-  /* Prevent background scroll when sidebar is open */
+  /* stop body scroll when sidebar is open */
   useEffect(() => {
     document.body.style.overflow = isOpen ? "hidden" : "auto";
     return () => (document.body.style.overflow = "auto");
@@ -65,7 +65,7 @@ export default function SidebarEmployee() {
 
   return (
     <>
-      {/* Mobile Hamburger (First row) */}
+      {/* mobile top bar*/}
       <div className="md:hidden fixed top-0 left-0 w-full bg-white p-4 shadow-md z-[60] flex justify-between items-center">
         <span className="font-bold text-teal-600">Menu</span>
         <button
@@ -80,13 +80,13 @@ export default function SidebarEmployee() {
 
 {isOpen && (
   <>
-    {/* Overlay covers full screen including topbar */}
+    {/* dark overlay behind sidebar */}
     <div
       onClick={() => setIsOpen(false)}
       className="fixed inset-0 bg-black/50 z-40 md:hidden"
     />
 
-    {/* Sidebar slides in from left, above overlay */}
+    {/* sidebar panel from left*/}
     <div
       className={`fixed top-0 left-0 w-64 h-full bg-white z-60 md:hidden flex flex-col p-4 overflow-y-auto
       transition-transform duration-300 ${isOpen ? "translate-x-0" : "-translate-x-full"}`}
@@ -122,7 +122,7 @@ export default function SidebarEmployee() {
 
 
 
-      {/* Desktop Sidebar */}
+      {/* desktop sidebar */}
       <aside className="hidden md:flex fixed top-0 left-0 h-screen w-64 bg-white shadow-lg flex-col justify-between overflow-y-auto z-50">
         <div className="pt-6 px-6">
           <h2 className="text-xl font-bold mb-6 border-b-4 border-teal-600 pb-1 w-16">
@@ -148,7 +148,7 @@ export default function SidebarEmployee() {
         </div>
       </aside>
 
-      {/* Mobile Overlay */}
+      {/* mobile overlay */}
       {isOpen && (
         <div
           onClick={() => setIsOpen(false)}
@@ -158,4 +158,5 @@ export default function SidebarEmployee() {
     </>
   );
 }
+
 
