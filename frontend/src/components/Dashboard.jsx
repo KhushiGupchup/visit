@@ -45,19 +45,19 @@ export default function Dashboard() {
           
         {/* Stats */}
         <div className="p-6 md:p-8 grid grid-cols-1 md:grid-cols-3 gap-6">
-          {/* Total Employee *}
+          {/* Total Employee */}
           <div className="bg-white p-6 rounded-xl shadow hover:shadow-md transition">
             <h3 className="text-lg font-bold text-gray-700">Total Employees</h3>
             <p className="text-4xl font-bold mt-4 text-blue-600">{stats.totalEmployees}</p>
           </div>
           
-          {/* Total Visitors *}
+          {/* Total Visitors */}
           <div className="bg-white p-6 rounded-xl shadow hover:shadow-md transition">
             <h3 className="text-lg font-bold text-gray-700">Total Visitors</h3>
             <p className="text-4xl font-bold mt-4 text-teal-600">{stats.totalVisitors}</p>
           </div>
 
-           {/* Pending Visitors *}
+           {/* Pending Visitors */}
           <div className="bg-white p-6 rounded-xl shadow hover:shadow-md transition">
             <h3 className="text-lg font-bold text-gray-700">Pending Visitors</h3>
             <p className="text-4xl font-bold mt-4 text-yellow-500">{stats.pendingVisitors}</p>
@@ -73,4 +73,5 @@ export default function Dashboard() {
     </div>
   );
 }
+
 
