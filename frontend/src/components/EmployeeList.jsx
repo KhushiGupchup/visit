@@ -5,31 +5,33 @@ import Topbar from "./Topbar.jsx";
 import api from "../utils/api.js";
 import { AuthContext } from "../context/AuthContext.jsx";
 
-const PAGE_SIZE_OPTIONS = [5, 10, 25];
+const PAGE_SIZE_OPTIONS = [5, 10, 25];//here how many pages shown per page
 
 export default function EmployeeList() {
-  const [employees, setEmployees] = useState([]);
+  const [employees, setEmployees] = useState([]);// store all employee
   const [loadingId, setLoadingId] = useState(null);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [rowsPerPage, setRowsPerPage] = useState(PAGE_SIZE_OPTIONS[0]);
+  
+  const [currentPage, setCurrentPage] = useState(1);//current page no.
+  const [rowsPerPage, setRowsPerPage] = useState(PAGE_SIZE_OPTIONS[0]); //no. of rows per page 
 
   const { user, logout } = useContext(AuthContext);
   const navigate = useNavigate();
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
+    const token = localStorage.getItem("token");//token
 
     if (!token || !user) {
       navigate("/login");
       return;
     }
 
+    //get all employee from backend by calling api
     const fetchEmployees = async () => {
       try {
         const res = await api.get("/admin/employees", {
           headers: { Authorization: `Bearer ${token}` },
         });
-        setEmployees(res.data);
+        setEmployees(res.data);// save empl
       } catch (err) {
         console.error(err);
         if (err.response?.status === 401) logout();
@@ -39,26 +41,31 @@ export default function EmployeeList() {
     fetchEmployees();
   }, [navigate, user, logout]);
 
-  const totalEntries = employees.length;
-  const totalPages = Math.ceil(totalEntries / rowsPerPage);
+  const totalEntries = employees.length;//total count of employee
+  
+  const totalPages = Math.ceil(totalEntries / rowsPerPage);// total pages based on rows per page
 
+  // Slice employees array based on current page
   const paginatedEmployees = employees.slice(
     (currentPage - 1) * rowsPerPage,
     currentPage * rowsPerPage
   );
 
   const handleDelete = async (empId) => {
+    //user permission befor final action
     if (!window.confirm("Are you sure? This will delete the employee and all related visitors.")) return;
 
     try {
       setLoadingId(empId);
       const token = localStorage.getItem("token");
 
+      // call backend api for delete
       await api.delete(`/admin/employee/${empId}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-
+      //remove the emp which is deleted 
       setEmployees((prev) => prev.filter((emp) => emp.empId !== empId));
+      
       alert("Employee and related visitors deleted successfully");
     } catch (err) {
       console.error(err);
@@ -86,6 +93,7 @@ export default function EmployeeList() {
             {/* Table */}
             <div className="overflow-x-auto">
               <table className="min-w-full bg-white rounded-lg border border-gray-200">
+                {/*table heading*/}
                 <thead className="bg-teal-500 text-white rounded-t-lg">
                   <tr>
                     <th className="px-6 py-3 text-left font-semibold">Employee ID</th>
@@ -94,7 +102,8 @@ export default function EmployeeList() {
                     <th className="px-6 py-3 text-left font-semibold">Action</th>
                   </tr>
                 </thead>
-
+                { rows of the emp*/}
+    
                 <tbody>
                   {paginatedEmployees.length > 0 ? (
                     paginatedEmployees.map((emp, i) => (
@@ -106,6 +115,7 @@ export default function EmployeeList() {
                         <td className="px-6 py-3 text-gray-800">{emp.name}</td>
                         <td className="px-6 py-3 text-blue-800 underline">{emp.email}</td>
                         <td className="px-6 py-3">
+                          {/* call delete api*/}
                           <button
                             onClick={() => handleDelete(emp.empId)}
                             disabled={loadingId === emp.empId}
@@ -122,6 +132,7 @@ export default function EmployeeList() {
                     ))
                   ) : (
                     <tr>
+                      {/* if no then show msg*/}
                       <td colSpan="4" className="text-center py-6 text-gray-500 font-medium">
                         No employees found.
                       </td>
@@ -131,10 +142,10 @@ export default function EmployeeList() {
               </table>
             </div>
 
-            {/* Pagination */}
+            {/* Pagination controls */}
             <div className="flex justify-between items-center mt-4">
 
-              {/* Rows per page */}
+              {/* Rows per page dropdown */}
               <div className="flex items-center gap-3">
                 <span className="font-semibold text-gray-700">Rows per page:</span>
                 <select
@@ -179,3 +190,4 @@ export default function EmployeeList() {
     </div>
   );
 }
+
