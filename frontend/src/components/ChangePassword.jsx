@@ -5,20 +5,21 @@ import api from "../utils/api.js";
 import { AuthContext } from "../context/AuthContext";
 
 export default function ChangePassword() {
-  const { logout } = useContext(AuthContext);
+  const { logout } = useContext(AuthContext);// call logout
+  //form of change of password
   const [form, setForm] = useState({
     empId: "",
     email: "",
     newPassword: "",
     confirmPassword: ""
   });
-
+//call api of backend
   const handleSubmit = async () => {
     if (form.newPassword !== form.confirmPassword) return alert("Passwords do not match");
     try {
-      await api.post("/employee/change-password", form);
+      await api.post("/employee/change-password", form);//send password 
       alert("Password changed. Please login again.");
-      logout();
+      logout();//after change again login should be done
     } catch (err) {
       alert(err.response?.data?.msg || "Error changing password");
     }
@@ -38,7 +39,7 @@ export default function ChangePassword() {
             <h1 className="text-2xl font-bold text-gray-800 mb-6 text-center sm:text-left">
               Change Password
             </h1>
-
+            {/* here the emp id*/
             <div className="space-y-4">
               <input
                 type="number"
@@ -47,7 +48,7 @@ export default function ChangePassword() {
                 onChange={(e) => setForm({ ...form, empId: e.target.value })}
                 className="border p-3 w-full rounded-lg focus:ring-2 focus:ring-blue-400 outline-none"
               />
-
+              {/* email of emp*/}
               <input
                 type="email"
                 placeholder="Email"
@@ -55,7 +56,7 @@ export default function ChangePassword() {
                 onChange={(e) => setForm({ ...form, email: e.target.value })}
                 className="border p-3 w-full rounded-lg focus:ring-2 focus:ring-blue-400 outline-none"
               />
-
+              {/* new password for set*/
               <input
                 type="password"
                 placeholder="New Password"
@@ -63,7 +64,7 @@ export default function ChangePassword() {
                 onChange={(e) => setForm({ ...form, newPassword: e.target.value })}
                 className="border p-3 w-full rounded-lg focus:ring-2 focus:ring-blue-400 outline-none"
               />
-
+                {/* confirm by again re enter*/
               <input
                 type="password"
                 placeholder="Confirm Password"
@@ -72,7 +73,7 @@ export default function ChangePassword() {
                 className="border p-3 w-full rounded-lg focus:ring-2 focus:ring-blue-400 outline-none"
               />
             </div>
-
+            {/* call the function and api*/}
             <button
               onClick={handleSubmit}
               className="w-full bg-teal-600 hover:bg-teal-700 text-white py-3 rounded-lg font-semibold mt-6 transition"
@@ -85,3 +86,4 @@ export default function ChangePassword() {
     </div>
   );
 }
+
