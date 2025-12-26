@@ -1,7 +1,5 @@
 import { useState, useEffect, useContext } from "react";
 import { FaCheckCircle, FaClock, FaTimesCircle, FaEye } from "react-icons/fa";
-
-import SidebarVisitor from "../components/VisitorSidebar";
 import Topbar from "../components/Topbar";
 import api from "../utils/api";
 import { AuthContext } from "../context/AuthContext";
@@ -406,3 +404,4 @@ function VisitModal({ visit, hostName, close }) {
     </div>
   );
 }
+
