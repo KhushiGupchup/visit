@@ -161,7 +161,7 @@ export default function EmployeeDashboard() {
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {/* show the visitors in card with approve and reject button*/
+              {/* show the visitors in card with approve and reject button */}
               {pendingVisitors.map((v) => (
                 <div
                   key={v._id}
@@ -189,12 +189,14 @@ export default function EmployeeDashboard() {
                     </button>
                     
                     {/* reject  button */}
+                     {/* call the action api for reject */}
 
                     <button
                       disabled={actionState.id === v._id}
                       onClick={() => handleAction(v, "reject")}
                       className="flex-1 bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 disabled:opacity-60"
-                    >{/* call the action api for reject */
+                    >
+                     
                       {actionState.id === v._id &&
                       actionState.type === "reject"
                         ? "Rejecting..."
@@ -210,5 +212,6 @@ export default function EmployeeDashboard() {
     </div>
   );
 }
+
 
 
