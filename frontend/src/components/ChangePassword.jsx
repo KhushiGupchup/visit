@@ -64,7 +64,7 @@ export default function ChangePassword() {
                 onChange={(e) => setForm({ ...form, newPassword: e.target.value })}
                 className="border p-3 w-full rounded-lg focus:ring-2 focus:ring-blue-400 outline-none"
               />
-                {/* confirm by again re enter*/
+                {/* confirm by again re enter*/}
               <input
                 type="password"
                 placeholder="Confirm Password"
@@ -86,4 +86,5 @@ export default function ChangePassword() {
     </div>
   );
 }
+
 
