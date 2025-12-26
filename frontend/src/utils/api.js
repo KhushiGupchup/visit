@@ -2,7 +2,7 @@ import axios from "axios";
 
 // Axios instance for backend API
 const api = axios.create({
-  baseURL: "https://visit-1-ren0.onrender.com/api", // your backend base URL
+  baseURL: "https://visit-1-ren0.onrender.com/api", // backend api
 });
 
 // Add JWT token to every request if available
@@ -15,4 +15,5 @@ api.interceptors.request.use((config) => {
 });
 
 export default api;
+
 
