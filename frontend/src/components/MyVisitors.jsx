@@ -91,9 +91,9 @@ export default function MyVisitors() {
     return date.toLocaleTimeString(undefined, options);
   };
 
-  // ---------------------------------------------------------
-  // SLOT DETECTION FUNCTION (9-11, 11-2, 2-4)
-  // ---------------------------------------------------------
+
+  // SLOT  (9-11, 11-2, 2-4)
+ 
   const getSlot = (dateStr) => {
     const hours = new Date(dateStr).getHours();
     if (hours >= 9 && hours < 11) return "slot1";
@@ -102,9 +102,9 @@ export default function MyVisitors() {
     return "other";
   };
 
-  // ---------------------------------------------------------
-  // FILTERED VISITORS (search + slot filter)
-  // ---------------------------------------------------------
+ 
+  // filter visitor on name,email as well slots
+
   const filteredVisitors = visitors.filter((v) => {
     const matchesSearch =
       v.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -481,3 +481,4 @@ export default function MyVisitors() {
     </div>
   );
 }
+
