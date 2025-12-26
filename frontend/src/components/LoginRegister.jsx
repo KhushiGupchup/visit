@@ -6,10 +6,10 @@ import logoVisio from "../assets/logo_new.png";
 import { AuthContext } from "../context/AuthContext";
 
 export default function LoginPage() {
-  const [activeTab, setActiveTab] = useState("login"); // login or register
+  const [activeTab, setActiveTab] = useState("login"); // login or register tab
 
   // Login states
-  const [loginType, setLoginType] = useState("visitor"); // user or visitor
+  const [loginType, setLoginType] = useState("visitor"); // visitor role always for login
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
@@ -21,21 +21,25 @@ export default function LoginPage() {
   const navigate = useNavigate();
   const { login } = useContext(AuthContext);
 
-  // ---------------- LOGIN HANDLER ----------------
+  //  login
   const handleLogin = async (e) => {
     e.preventDefault();
     if (!email || !password) return alert("Please enter both email and password");
 
     try {
+      //check whether user or visitor is doing login and use api
       const endpoint = loginType === "user" ? "/auth/login" : "/visitor/visitor/login";
       const res = await api.post(endpoint, {
         email: email.trim().toLowerCase(),
         password: password.trim(),
       });
 
-      localStorage.setItem("token", res.data.token);
+      localStorage.setItem("token", res.data.token);//token
+      
+      //save login data
       login({ email: res.data.email, role: res.data.role, empId: res.data.empId || null });
 
+      //after successful login go the that role dashboard 
       const routeMap = {
         admin: "/admin/dashboard",
         employee: "/employee/dashboard",
@@ -50,12 +54,13 @@ export default function LoginPage() {
     }
   };
 
-  // ---------------- REGISTER VISITOR ----------------
+  //  register visitor
   const handleRegister = async (e) => {
     e.preventDefault();
     if (regPassword.trim() !== regConfirm.trim()) return alert("Passwords do not match");
 
     try {
+      //call backend api
       await api.post("/visitor/register", {
         email: regEmail.trim().toLowerCase(),
         password: regPassword.trim(),
@@ -63,7 +68,9 @@ export default function LoginPage() {
       });
 
       alert("Visitor registered successfully! You can now login.");
+      //after register set it to login tab
       setActiveTab("login");
+      //reset the form
       setRegEmail("");
       setRegPassword("");
       setRegConfirm("");
@@ -81,7 +88,7 @@ export default function LoginPage() {
             <img src={logoVisio} alt="Logo" className="h-16 w-auto" />
           </div>
 
-          {/* Tabs */}
+          {/* Tabs  for login or register */}
           <div className="flex border-b border-gray-300 mb-6">
             {["login", "register"].map((tab) => (
               <h1
@@ -98,7 +105,7 @@ export default function LoginPage() {
             ))}
           </div>
 
-          {/* LOGIN FORM */}
+          {/* login form for both user and vistor according to tab */}
           {activeTab === "login" && (
             <form onSubmit={handleLogin} className="space-y-4">
               {/* Select user type */}
@@ -124,7 +131,8 @@ export default function LoginPage() {
                   <span>Visitor</span>
                 </label>
               </div>
-
+              {/* email*/}
+              
               <input
                 type="email"
                 placeholder="Email"
@@ -133,6 +141,8 @@ export default function LoginPage() {
                 required
                 className="border p-3 w-full rounded-lg focus:ring-2 focus:ring-teal-400 outline-none"
               />
+                {/* password*/}
+              
               <input
                 type="password"
                 placeholder="Password"
@@ -147,9 +157,12 @@ export default function LoginPage() {
             </form>
           )}
 
-          {/* REGISTER FORM */}
+          {/* form  for visitor register*/}
           {activeTab === "register" && (
             <form onSubmit={handleRegister} className="space-y-4">
+              
+
+              {/*email */}
               <input
                 type="email"
                 placeholder="Visitor Email"
@@ -158,6 +171,8 @@ export default function LoginPage() {
                 required
                 className="border p-3 w-full rounded-lg focus:ring-2 focus:ring-teal-400 outline-none"
               />
+
+              {/*password*/}
               <input
                 type="password"
                 placeholder="Password"
@@ -166,6 +181,7 @@ export default function LoginPage() {
                 required
                 className="border p-3 w-full rounded-lg focus:ring-2 focus:ring-teal-400 outline-none"
               />
+              {/*confirm password*/}
               <input
                 type="password"
                 placeholder="Confirm Password"
@@ -184,3 +200,4 @@ export default function LoginPage() {
     </div>
   );
 }
+
