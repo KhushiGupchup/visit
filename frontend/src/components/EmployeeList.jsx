@@ -102,7 +102,7 @@ export default function EmployeeList() {
                     <th className="px-6 py-3 text-left font-semibold">Action</th>
                   </tr>
                 </thead>
-                { rows of the emp*/}
+                { /*rows of the emp*/}
     
                 <tbody>
                   {paginatedEmployees.length > 0 ? (
@@ -190,4 +190,5 @@ export default function EmployeeList() {
     </div>
   );
 }
+
 
