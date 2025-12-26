@@ -1,7 +1,7 @@
 import { useState, useEffect, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-
+import SidebarEmployee from "../components/EmployeeSidebar";
 import Topbar from "./Topbar";
 import { AuthContext } from "../context/AuthContext.jsx";
 import logoVisio from "../assets/logo_new.png";
@@ -150,7 +150,7 @@ export default function ScheduleVisit() {
 
   return (
     <div className="flex flex-col md:flex-row min-h-screen bg-gray-100">
-      <SidebarVisitor />
+      <SidebarEmployee />
       <div className="flex-1 pt-[144px] md:pt-20 md:ml-64 flex flex-col overflow-auto">
         <Topbar />
 
@@ -308,4 +308,5 @@ export default function ScheduleVisit() {
     </div>
   );
 }
+
 
