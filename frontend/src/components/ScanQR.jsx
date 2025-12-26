@@ -2,7 +2,7 @@ import { useEffect, useState, useContext, useRef } from "react";
 //A library for scanning QR codes using the webcam
 import { Html5QrcodeScanner } from "html5-qrcode";
 import api from "../utils/api.js";
-import SidebarSecurity from "../components/SidebarSecurity";
+
 import { AuthContext } from "../context/AuthContext.jsx";
 import "../App.css";
 import Topbar from "./Topbar.jsx";
@@ -61,7 +61,7 @@ export default function ScanQR() {
          {/* MAIN CONTENT AREA */}
          <div className="flex-1 flex flex-col overflow-auto pt-[144px] md:pt-20 md:ml-64">
    
-           {/* 🔹 Topbar Added Here */}
+           {/*  Topbar Added Here */}
            <Topbar />
         <h1 className="text-3xl font-extrabold mb-8 text-gray-800 text-center md:text-left mt-3 p-2">
           Scan QR Code
@@ -94,3 +94,4 @@ export default function ScanQR() {
     </div>
   );
 }
+
