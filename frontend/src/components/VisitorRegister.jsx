@@ -3,6 +3,8 @@ import axios from "axios";
 import NavbarComponent from "./Navbar_new";
 import logoVisio from "../assets/logo_new.png";
 import { useNavigate } from "react-router-dom";
+import api from "../utils/api.js";
+
 
 export default function VisitorRegistration() {
   const navigate = useNavigate();
@@ -30,7 +32,10 @@ export default function VisitorRegistration() {
         return;
       }
       try {
-        const res = await axios.get(`http://localhost:5000/api/visitor/available-slots/${visitingTo}/${date}`);
+        const res = await api.get(
+  `/visitor/available-slots/${visitingTo}/${date}`
+);
+
         setSlots(res.data.availableSlots || []);
         setFormData(p => ({ ...p, slot: "" }));
       } catch {
@@ -98,7 +103,12 @@ export default function VisitorRegistration() {
 
       if (formData.photo) data.append("photo", formData.photo);
 
-      const res = await axios.post("http://localhost:5000/api/visitor/add", data, { headers: { "Content-Type": "multipart/form-data" } });
+     const res = await api.post(
+  "/visitor/add",
+  data,
+  { headers: { "Content-Type": "multipart/form-data" } }
+);
+
 
       alert(res.data.msg || "Visitor registered successfully");
       setFormData({ name:"", email:"", phone:"", visitingTo:"", description:"", slot:"", date:"", photo:null });
@@ -197,3 +207,4 @@ export default function VisitorRegistration() {
     </div>
   );
 }
+
