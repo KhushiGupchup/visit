@@ -5,7 +5,7 @@ export default function NavbarComponent() {
   return (
     <nav className="w-full flex justify-between items-center px-4 w-[ ] sm:px-10 py-4 bg-white/90 backdrop-blur-md fixed top-0 z-50 shadow-md">
       
-      {/* Logo + Brand */}
+      {/* Logo */}
       <Link to="/" className="flex items-center space-x-3">
         <img src={logoVisio} alt="Visio Logo" className="h-10 w-auto bg-white rounded-md p-2" />
         <div className="flex flex-col leading-tight">
@@ -35,3 +35,4 @@ export default function NavbarComponent() {
     </nav>
   );
 }
+
