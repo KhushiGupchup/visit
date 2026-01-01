@@ -2,12 +2,13 @@ const PDFDocument = require("pdfkit");//to create pdf
 const fs = require("fs");
 const path = require("path");
 
-//visitor details and qr image and where to store
+//pdf info
 async function generatePDF(visitor, qrBase64, outputPath) {
   return new Promise((resolve, reject) => {
-    const doc = new PDFDocument({ size: "A4", margin: 50 });//make document 
+    const doc = new PDFDocument({ size: "A4", margin: 50 }); //make document 
     const dir = path.dirname(outputPath);//save in given path
-    if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });//if path not their then create
+    if (!fs.existsSync(dir)) 
+      fs.mkdirSync(dir, { recursive: true });//if path not their then create
 
     const stream = fs.createWriteStream(outputPath);//send content to file
     doc.pipe(stream);
@@ -48,14 +49,11 @@ async function generatePDF(visitor, qrBase64, outputPath) {
       );
     doc.moveDown(2);
 
-    // QR Code 
-    const base64Data = qrBase64.replace(/^data:image\/png;base64,/, "");
-    const tempQRPath = path.join(__dirname, `tmp_qr_${visitor._id}.png`);//temporary image file of qr
-    fs.writeFileSync(tempQRPath, base64Data, "base64");//add it
+   const qrBuffer = Buffer.from(qrBase64.replace(/^data:image\/png;base64,/, ""), "base64"); // convert base64 to buffer
+const qrX = (doc.page.width - 150) / 2; // center QR
+doc.image(qrBuffer, qrX, doc.y, { width: 150 }); // embed QR directly
+doc.moveDown(2);
 
-    const qrX = (doc.page.width - 150) / 2; // center QR
-    doc.image(tempQRPath, qrX, doc.y, { width: 150 });
-    doc.moveDown(2);
 
    
 
@@ -63,7 +61,7 @@ async function generatePDF(visitor, qrBase64, outputPath) {
     doc.end();// done all contents of files
 
     stream.on("finish", () => {
-      fs.unlinkSync(tempQRPath);//remove temporary qr 
+      
       resolve(outputPath);
     });
 
@@ -72,4 +70,5 @@ async function generatePDF(visitor, qrBase64, outputPath) {
 }
 
 module.exports = {generatePDF};
+
 
