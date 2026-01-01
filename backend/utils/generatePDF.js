@@ -49,16 +49,16 @@ async function generatePDF(visitor, qrBase64, outputPath) {
       );
     doc.moveDown(2);
 
-   const qrBuffer = Buffer.from(qrBase64.replace(/^data:image\/png;base64,/, ""), "base64"); // convert base64 to buffer
-const qrX = (doc.page.width - 150) / 2; // center QR
-doc.image(qrBuffer, qrX, doc.y, { width: 150 }); // embed QR directly
-doc.moveDown(2);
+   const qrBuffer = Buffer.from(qrBase64.replace(/^data:image\/png;base64,/, ""), "base64"); 
+   const qrX = (doc.page.width - 150) / 2; // center QR
+   doc.image(qrBuffer, qrX, doc.y, { width: 150 }); // QR directly
+   doc.moveDown(2);
 
 
    
 
 
-    doc.end();// done all contents of files
+    doc.end();// all content done of files
 
     stream.on("finish", () => {
       
@@ -70,5 +70,6 @@ doc.moveDown(2);
 }
 
 module.exports = {generatePDF};
+
 
 
