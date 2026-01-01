@@ -24,9 +24,8 @@ exports.addVisitor = async (req, res) => {
       name: req.body.name,            
       email: visitor.email,           
       phone: req.body.phone,          
-
       hostEmpId: Number(req.body.hostEmpId),
-      hostName: host.name,            //  get employee name 
+      hostName: host.name,            
       purpose: req.body.purpose,
       scheduledAt: req.body.scheduledAt,
       slot,
@@ -149,12 +148,14 @@ exports.registerVisitorForm = async (req, res) => {
       return res.status(400).json({ msg: "All fields are required" });
     }
 
-    //  Get host by  emp id
+    //get host
     const host = await Employee.findOne({ empId: Number(hostEmpId) });
-    if (!host) return res.status(404).json({ msg: "Employee not found" });
+    if (!host) 
+      return res.status(404).json({ msg: "Employee not found" });
 
-    //  check slot
+    //show slots
     const allowedSlots = ["slot1", "slot2", "slot3", "other"];
+    //select slot from allowed slots
     const selectedSlot = allowedSlots.includes(slot) ? slot : "other";
 
     //  visitor data
@@ -171,7 +172,7 @@ exports.registerVisitorForm = async (req, res) => {
       photo: req.file ? req.file.filename : null
     };
 
-    //  Save visitor
+    //  Save new visitor
     const newVisit = await Visitor.create(visitorData);
 
     res.status(201).json({
@@ -184,6 +185,7 @@ exports.registerVisitorForm = async (req, res) => {
     res.status(500).json({ msg: "Server Error" });
   }
 };
+
 
 
 
