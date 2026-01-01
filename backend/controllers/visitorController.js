@@ -148,20 +148,20 @@ exports.registerVisitorForm = async (req, res) => {
       return res.status(400).json({ msg: "All fields are required" });
     }
 
-    //get host
+    // host by id
     const host = await Employee.findOne({ empId: Number(hostEmpId) });
     if (!host) 
       return res.status(404).json({ msg: "Employee not found" });
 
-    //show slots
+    //show slots which are assigned
     const allowedSlots = ["slot1", "slot2", "slot3", "other"];
-    //select slot from allowed slots
+  
     const selectedSlot = allowedSlots.includes(slot) ? slot : "other";
 
-    //  visitor data
-    const visitorData = {
+    //  visitor data 
+    const visitor = {
       name,
-      email: email.trim().toLowerCase(),
+      email,
       phone,
       hostEmpId: Number(hostEmpId),
       hostName: host.name,
@@ -173,11 +173,11 @@ exports.registerVisitorForm = async (req, res) => {
     };
 
     //  Save new visitor
-    const newVisit = await Visitor.create(visitorData);
+    const newVisitor = await Visitor.create(visitor);
 
     res.status(201).json({
       msg: "Visitor registered successfully",
-      data: newVisit
+      data: newVisitor
     });
 
   } catch (err) {
@@ -185,6 +185,7 @@ exports.registerVisitorForm = async (req, res) => {
     res.status(500).json({ msg: "Server Error" });
   }
 };
+
 
 
 
