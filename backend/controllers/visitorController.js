@@ -21,13 +21,12 @@ exports.addVisitor = async (req, res) => {
 
     //   visitor data from form
     const visitorData = {
-      name: req.body.name,            // visitor name from form
-      email: visitor.email,           // logged-in visitor email
-      phone: req.body.phone,          // visitor phone from form
+      name: req.body.name,            
+      email: visitor.email,           
+      phone: req.body.phone,          
 
       hostEmpId: Number(req.body.hostEmpId),
-      hostName: host.name,            //  get employee name from User collection
-
+      hostName: host.name,            //  get employee name 
       purpose: req.body.purpose,
       scheduledAt: req.body.scheduledAt,
       slot,
@@ -185,6 +184,7 @@ exports.registerVisitorForm = async (req, res) => {
     res.status(500).json({ msg: "Server Error" });
   }
 };
+
 
 
 
