@@ -8,7 +8,7 @@ exports.addVisitor = async (req, res) => {
   try {
     const visitor = req.visitor; // from JWT token
 
-    //  Get employee details using hostEmpId from request
+    //  Get host 
     const host = await Employee.findOne({ empId: Number(req.body.hostEmpId) });
 
     if (!host) {
@@ -49,7 +49,7 @@ exports.addVisitor = async (req, res) => {
   }
 };
 
-// GET LOGGED-IN VISITOR'S VISITS 
+//get  VISITS of visitor 
 exports.getMyVisits = async (req, res) => {
   try {
     const visitorEmail = req.visitor.email;
@@ -112,7 +112,7 @@ exports.loginVisitor = async (req, res) => {
 
     const token = jwt.sign(
       { id: visitor._id, role: "visitor", email: visitor.email },
-      process.env.JWT_SECRET || "SECRET_KEY",
+      process.env.JWT_SECRET,
       { expiresIn: "1d" }
     );
 
@@ -132,7 +132,7 @@ exports.loginVisitor = async (req, res) => {
 };
 
 
-// REGISTER VISITOR FROM FORM 
+// register directly from form
 exports.registerVisitorForm = async (req, res) => {
   try {
     const {
@@ -157,7 +157,7 @@ exports.registerVisitorForm = async (req, res) => {
     const allowedSlots = ["slot1", "slot2", "slot3", "other"];
     const selectedSlot = allowedSlots.includes(slot) ? slot : "other";
 
-    //  Prepare visitor data
+    //  visitor data
     const visitorData = {
       name,
       email: email.trim().toLowerCase(),
@@ -184,6 +184,7 @@ exports.registerVisitorForm = async (req, res) => {
     res.status(500).json({ msg: "Server Error" });
   }
 };
+
 
 
 
