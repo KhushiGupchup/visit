@@ -171,7 +171,7 @@ exports.getMyVisitors = async (req, res) => {
         qrData: v.qrData,
         hostName: host?.name || "Unknown",
         hostEmpId: v.hostEmpId,
-        photo: v.photo || null, 
+        photo: v.photo ? `https://visit-1-ren0.onrender.com/${v.photo}` : null, 
       };
     }));
 
@@ -396,4 +396,5 @@ exports.addVisitorByEmployee = async (req, res) => {
     res.status(500).json({ msg: "Server Error" });
   }
 };
+
 
