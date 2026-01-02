@@ -366,7 +366,7 @@ export default function MyVisitors() {
                 <div className="col-span-2 flex justify-center">
                   {viewModal.visitor.photo ? (
                     <div className="w-32 h-32 rounded-full border overflow-hidden flex items-center justify-center bg-gray-100">
-                      <img src={`https://visit-1-ren0.onrender.com/uploads/${viewModal.visitor.photo}`}
+                      <img src={`https://visit-1-ren0.onrender.com/${viewModal.visitor.photo}`}
                            alt={viewModal.visitor.name}
                            className="w-full h-full object-cover object-center"
                       />
@@ -480,5 +480,6 @@ export default function MyVisitors() {
     </div>
   );
 }
+
 
 
