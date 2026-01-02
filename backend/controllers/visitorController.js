@@ -134,32 +134,24 @@ exports.loginVisitor = async (req, res) => {
 // register directly from form
 exports.registerVisitorForm = async (req, res) => {
   try {
-    const {
-      name,
-      email,
-      phone,
-      hostEmpId,
-      purpose,
-      scheduledAt,
-      slot
-    } = req.body;
+    const {name,email,phone,hostEmpId,purpose,scheduledAt,slot} = req.body;
 
     if (!name || !email || !phone || !hostEmpId || !purpose || !scheduledAt || !slot) {
-      return res.status(400).json({ msg: "All fields are required" });
+      return res.status(400).json({ msg: "Please fill all fields." });
     }
 
     // host by id
     const host = await Employee.findOne({ empId: Number(hostEmpId) });
     if (!host) 
-      return res.status(404).json({ msg: "Employee not found" });
+      return res.status(404).json({ msg: "Employee not found.plz check the id" });
 
-    //show slots which are assigned
+    //show slots 
     const allowedSlots = ["slot1", "slot2", "slot3", "other"];
-  
+    //select slot
     const selectedSlot = allowedSlots.includes(slot) ? slot : "other";
 
     //  visitor data 
-    const visitor = {
+    const visitordata = {
       name,
       email,
       phone,
@@ -173,7 +165,7 @@ exports.registerVisitorForm = async (req, res) => {
     };
 
     //  Save new visitor
-    const newVisitor = await Visitor.create(visitor);
+    const newVisitor = await Visitor.create(visitordata);
 
     res.status(201).json({
       msg: "Visitor registered successfully",
@@ -181,10 +173,11 @@ exports.registerVisitorForm = async (req, res) => {
     });
 
   } catch (err) {
-    console.error("Register Visitor Form Error:", err);
+    console.error("Form Error:", err);
     res.status(500).json({ msg: "Server Error" });
   }
 };
+
 
 
 
