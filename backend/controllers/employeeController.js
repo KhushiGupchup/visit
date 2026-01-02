@@ -174,8 +174,7 @@ exports.getMyVisitors = async (req, res) => {
         photo: v.photo
   ? `https://visit-1-ren0.onrender.com/uploads/${v.photo}`
   : null,
-,
- 
+
       };
     }));
 
@@ -400,6 +399,7 @@ exports.addVisitorByEmployee = async (req, res) => {
     res.status(500).json({ msg: "Server Error" });
   }
 };
+
 
 
 
