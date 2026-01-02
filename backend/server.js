@@ -3,18 +3,19 @@ const cors = require("cors");
 const connectDB = require("./config/db");
 require("dotenv").config(); 
 
+
 const authRoutes = require("./routes/authRoutes");
 const visitorRoutes = require("./routes/visitorRoutes");
 const admin = require("./routes/admin");
 const employee = require("./routes/employee");
 const security = require("./routes/security")
 const otpRoutes = require("./routes/otpRoutes"); // otp
-
+const path = require("path");
 const app = express();
 
 app.use(express.json());
 app.use(cors());
-app.use("/uploads", express.static("uploads"));
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 connectDB();
 
@@ -30,4 +31,5 @@ app.use("/api", otpRoutes);
 
 
 app.listen(5000, () => console.log("Server running on port 5000"));
+
 
