@@ -30,7 +30,8 @@ exports.addVisitor = async (req, res) => {
       scheduledAt: req.body.scheduledAt,
       slot,
       status: "pending",
-      photo: req.file ? req.file.path.replace(/\\/g, "/") : visitor.photo || null
+      photo: req.file ? req.file.filename : visitor.photo || null,
+
 
     };
 
@@ -161,7 +162,7 @@ exports.registerVisitorForm = async (req, res) => {
       scheduledAt,
       slot: selectedSlot,
       status: "pending",
-      photo: req.file ? req.file.path.replace(/\\/g, "/") : null
+      photo: req.file ? req.file.filename : visitor.photo || null,
 
     };
 
@@ -178,6 +179,7 @@ exports.registerVisitorForm = async (req, res) => {
     res.status(500).json({ msg: "Server Error" });
   }
 };
+
 
 
 
