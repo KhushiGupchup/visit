@@ -80,7 +80,8 @@ exports.getMyVisits = async (req, res) => {
 
         hostEmpId: v.hostEmpId,
         hostName,   // now will fetch 
-        photo: v.photo ? `https://visit-1-ren0.onrender.com/${v.photo}` : null,
+        photo: v.photo ? `https://visit-1-ren0.onrender.com/uploads/${v.photo}` : null
+
       };
     }));
 
@@ -162,7 +163,7 @@ exports.registerVisitorForm = async (req, res) => {
       scheduledAt,
       slot: selectedSlot,
       status: "pending",
-      photo: req.file ? req.file.filename : visitor.photo || null,
+      photo: req.file ? req.file.filename :  null,
 
     };
 
@@ -179,6 +180,7 @@ exports.registerVisitorForm = async (req, res) => {
     res.status(500).json({ msg: "Server Error" });
   }
 };
+
 
 
 
