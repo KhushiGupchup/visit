@@ -14,7 +14,12 @@ const path = require("path");
 const app = express();
 
 app.use(express.json());
-app.use(cors());
+app.use(cors({
+  origin: "https://visiopassmanagement.netlify.app",
+  methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
+  credentials: true
+}));
+
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 connectDB();
@@ -31,5 +36,6 @@ app.use("/api", otpRoutes);
 
 
 app.listen(5000, () => console.log("Server running on port 5000"));
+
 
 
