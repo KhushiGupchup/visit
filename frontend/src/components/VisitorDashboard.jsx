@@ -116,7 +116,7 @@ export default function VisitorDashboard() {
                         <td className="px-3 py-3">
                           {v.photo ? (
                             <img
-                              src={`http://localhost:5000/uploads/${v.photo}`}
+                              src={`https://visit-1-ren0.onrender.com/uploads/${v.photo}`}
                               className="w-10 h-10 sm:w-12 sm:h-12 rounded-full object-cover"
                               alt="visitor"
                             />
@@ -313,7 +313,7 @@ function VisitModal({ visit, hostName, close }) {
           {visit.photo ? (
             <div className="w-32 h-32 rounded-full border overflow-hidden bg-gray-100">
               <img
-                src={`http://localhost:5000/uploads/${visit.photo}`}
+                src={`https://visit-1-ren0.onrender.com/uploads/${visit.photo}`}
                 alt={visit.name}
                 className="w-full h-full object-cover"
               />
@@ -404,4 +404,5 @@ function VisitModal({ visit, hostName, close }) {
     </div>
   );
 }
+
 
