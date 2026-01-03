@@ -139,7 +139,7 @@ exports.scheduleVisitor = async (req, res) => {
     //send all files
       await sendEmail(email, "Your VPMS Visitor Pass", emailHTML, [
         { filename: "VisitorPass.png", content: passImage, cid: "visitor_pass" },
-        { filename: "VisitorPass.pdf", path: pdfPath },
+        { filename: "VisitorPass.pdf", path: pdfFilePath },
         { filename: "VisitorQR.png", content: qrBuffer, cid: "visitor_qr" },
       ]);
     }
@@ -399,6 +399,7 @@ exports.addVisitorByEmployee = async (req, res) => {
     res.status(500).json({ msg: "Server Error" });
   }
 };
+
 
 
 
