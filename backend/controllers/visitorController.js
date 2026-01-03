@@ -53,9 +53,9 @@ exports.loginVisitor = async(req,res)=>{
 
 exports.registerVisitorForm = async(req,res)=>{
     try{
-        const{name,email,phone,hostEmpId,purpose,scheduleAt,slot}=req.body;
+        const{name,email,phone,hostEmpId,purpose,scheduledAt,slot}=req.body;
 
-        if(!name || !email || !phone ||!hostEmpId ||!purpose ||!scheduleAt ||!slot ){
+        if(!name || !email || !phone ||!hostEmpId ||!purpose ||!scheduledAt ||!slot ){
             return res.status(400).json({msg:"Please fill all the values"});
         }
        
@@ -72,7 +72,7 @@ exports.registerVisitorForm = async(req,res)=>{
 
         const visitorinfo ={
             name,email:email,phone,hostEmpId:Number(hostEmpId),
-            hostName:hostId.name,purpose,scheduleAt,
+            hostName:hostId.name,purpose,scheduledAt,
             slot:selectedSlot,status:"pending",
             photo:req.file ? req.file.filename :null
         };
