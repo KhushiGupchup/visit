@@ -1,6 +1,6 @@
 const Visitor = require("../models/Visitor");
 const Employee = require("../models/User");
-const bcrypt = require("bcrytjs");
+const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 
 //For Visitor Login
@@ -55,7 +55,7 @@ exports.registerVisitorForm = async(req,res)=>{
     try{
         const{name,email,phone,hostEmpId,purpose,scheduleAt,slot}=req.body;
 
-        if(!name || !email || !phone ||!purpose ||!scheduleAt ||slot){
+        if(!name || !email || !phone ||!purpose ||!scheduleAt ||!slot){
             return res.status(400).json({msg:"Please fill all the values"});
         }
         if(!hostEmpId){
