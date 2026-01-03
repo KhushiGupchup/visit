@@ -71,7 +71,7 @@ exports.registerVisitorForm = async(req,res)=>{
         const selectedSlot = allowedSlots.includes(slot) ? slot :"other time";
 
         const visitorinfo ={
-            name,email,phone,hostEmpId:Number(hostEmpId),
+            name,email:email,phone,hostEmpId:Number(hostEmpId),
             hostName:hostId.name,purpose,scheduleAt,
             slot:selectedSlot,status:"pending",
             photo:req.file ? req.file.filename :null
