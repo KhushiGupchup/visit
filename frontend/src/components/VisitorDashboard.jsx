@@ -123,7 +123,7 @@ export default function VisitorDashboard() {
                             />
                           ) : (
                             <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-gray-300 flex items-center justify-center text-xs">
-                              No Photo
+                             <img src={photoVisitor} alt="Visitor placeholder" />
                             </div>
                           )}
                         </td>
@@ -321,7 +321,7 @@ function VisitModal({ visit, hostName, close }) {
             </div>
           ) : (
             <div className="w-32 h-32 bg-gray-200 flex items-center justify-center rounded-full border">
-             <img src={photoVisitor}>
+             <img src={photoVisitor} alt="Visitor placeholder" />
             </div>
           )}
         </div>
@@ -405,6 +405,7 @@ function VisitModal({ visit, hostName, close }) {
     </div>
   );
 }
+
 
 
 
