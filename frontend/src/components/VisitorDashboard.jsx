@@ -4,7 +4,7 @@ import Topbar from "../components/Topbar";
 import api from "../utils/api";
 import { AuthContext } from "../context/AuthContext";
 import SidebarEmployee from "./EmployeeSidebar";
-import photoVisitor from "../assets/download.png";
+import photoVisitor from "../assets/download.jpg";
 
 export default function VisitorDashboard() {
   const { user } = useContext(AuthContext);
@@ -405,6 +405,7 @@ function VisitModal({ visit, hostName, close }) {
     </div>
   );
 }
+
 
 
 
