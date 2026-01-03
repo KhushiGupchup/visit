@@ -2,7 +2,7 @@
 
 Demo Live Link : https://visiopassmanagementnew.netlify.app/
 
-Demo Video Link : https://docs.google.com/videos/d/1AlsQ3EyOdDWTsXt5dnx33mPJg2eonbjmZOccDMCtbaA/edit?usp=sharing
+Demo Video Link : https://docs.google.com/videos/d/17dBSISNCYHraQxbKREjPW2-41TvhuBcFEvFYc3rxKKs/edit?usp=sharing
 
 select the user radio button to login in admin
 Email: admin@example.com
