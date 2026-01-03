@@ -117,7 +117,7 @@ exports.scheduleVisitor = async (req, res) => {
 
     // Update visitor with qr and pdf as schedule means already approved
     visitor.qrData = qrData;
-    visitor.passPdf = pdfPath;
+    visitor.passPdf = pdfFilePath;
     await visitor.save();
 
     // Send email to visitor which is already approved
@@ -399,6 +399,7 @@ exports.addVisitorByEmployee = async (req, res) => {
     res.status(500).json({ msg: "Server Error" });
   }
 };
+
 
 
 
