@@ -55,12 +55,10 @@ exports.registerVisitorForm = async(req,res)=>{
     try{
         const{name,email,phone,hostEmpId,purpose,scheduleAt,slot}=req.body;
 
-        if(!name || !email || !phone ||!purpose ||!scheduleAt ||!slot ||!hostEmpId){
+        if(!name || !email || !phone ||!hostEmpId ||!purpose ||!scheduleAt ||!slot ){
             return res.status(400).json({msg:"Please fill all the values"});
         }
-        if(!hostEmpId){
-            return res.status(400).json({msg:"Host id is important"});
-        }
+       
 
         const hostId = await Employee.findOne({empId:Number(hostEmpId)});
 
