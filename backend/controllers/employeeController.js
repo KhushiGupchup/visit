@@ -63,18 +63,18 @@ exports.dashboard = async (req, res) => {
 //  Schedule Visitor by employee
 exports.scheduleVisitor = async (req, res) => {
   try {
-    const { name, email, phone, purpose, scheduledAt } = req.body;//get all fields
-  
-    const dateObj = new Date(scheduledAt);// to get easy way of js date
+    const { name, email, phone, purpose, scheduledAt } = req.body; // get all fields
 
-    // Determine slot from the date which is selected
+    const dateObj = new Date(scheduledAt); // convert to JS Date
+
+    // Determine slot from the date
     let slot = "other";
     const hours = dateObj.getHours();
     if (hours >= 9 && hours < 11) slot = "slot1";
     else if (hours >= 11 && hours < 14) slot = "slot2";
     else if (hours >= 14 && hours < 15) slot = "slot3";
 
-    // Create visitor and status will be approved
+    // Create visitor and mark as approved
     const visitor = await Visitor.create({
       name,
       email,
@@ -83,46 +83,32 @@ exports.scheduleVisitor = async (req, res) => {
       hostEmpId: Number(req.user.empId),
       scheduledAt: dateObj,
       status: "approved",
-      slot
+      slot,
     });
 
-    // Get host from empid
+    // Get host info
     const host = await User.findOne({ empId: req.user.empId });
 
-    // Generate QR for scan
+    // Generate QR for visitor
     const qrData = await generateQRBase64(JSON.stringify({ visitorId: visitor._id }));
 
-        // Generate PDF for visitor
-      
-    const pdfDirectory = path.join(__dirname, "../uploads/pdfPass");
-    
-    //  Create the folder if it doesn't exist
-    if (!fs.existsSync(pdfDirectory)) {
-      fs.mkdirSync(pdfDirectory, { recursive: true });
-    }
-    
-    //   the PDF file name (visitorId.pdf)
-    const pdfFilePath = path.join(pdfDirectory, `${visitor._id}.pdf`);
-    
-    // Generate the PDF with visitor info and QR code
-    await generatePDF(
-      { ...visitor._doc, hostName: host?.name }, 
-      qrData,                                   
-      pdfFilePath                               
+    //  Generate PDF in-memory 
+    const pdfBuffer = await generatePDF(
+      { ...visitor._doc, hostName: host?.name },
+      qrData
     );
-
 
     // Generate PNG pass
     const passImage = await generateVisitorPassImage({ ...visitor._doc, hostName: host?.name });
 
-    // Update visitor with qr and pdf as schedule means already approved
+    // Update visitor with QR only (no PDF path)
     visitor.qrData = qrData;
-    visitor.passPdf = pdfFilePath;
     await visitor.save();
 
-    // Send email to visitor which is already approved
+    // Send email to visitor
     if (email) {
       const qrBuffer = Buffer.from(qrData.split(",")[1], "base64");
+
       const emailHTML = `
         <div style="max-width:400px;margin:0 auto;font-family:sans-serif;border:1px solid #e0e0e0;border-radius:12px;overflow:hidden;">
           <div style="background:#3b82f6;color:white;text-align:center;padding:16px;font-size:20px;font-weight:bold;">
@@ -131,15 +117,16 @@ exports.scheduleVisitor = async (req, res) => {
           <div style="padding:16px;text-align:center;">
             <img src="cid:visitor_pass" alt="Visitor Pass" style="width:300px;height:auto;" />
           </div>
-          <div style="background:#10b981;color:white;text-align:center;padding:12px;font-size:20px; font-weight:bold">
+          <div style="background:#10b981;color:white;text-align:center;padding:12px;font-size:20px;font-weight:bold">
             Please show this pass at the entrance.
           </div>
         </div>
       `;
-    //send all files
+
+      // Send email with PDF in-memory
       await sendEmail(email, "Your VPMS Visitor Pass", emailHTML, [
         { filename: "VisitorPass.png", content: passImage, cid: "visitor_pass" },
-        { filename: "VisitorPass.pdf", path: pdfFilePath },
+        { filename: "VisitorPass.pdf", content: pdfBuffer }, //  use buffer instead of path
         { filename: "VisitorQR.png", content: qrBuffer, cid: "visitor_qr" },
       ]);
     }
@@ -253,30 +240,19 @@ exports.approveVisitor = async (req, res) => {
       );
     }
 
-    /* GENERATE PDF PASS  */
-    const pdfDir = path.join(__dirname, "../uploads/pdfPass");
-    if (!fs.existsSync(pdfDir)) fs.mkdirSync(pdfDir, { recursive: true });
-
-    const pdfPath = path.join(pdfDir, `${visitorId}.pdf`);
-    await generatePDF(
+    /* GENERATE PDF PASS IN-MEMORY */
+    const pdfBuffer = await generatePDF(
       { ...visitor._doc, hostName: host?.name },
-      visitor.qrData,
-      pdfPath
+      visitor.qrData
     );
-    visitor.passPdf = pdfPath;
-
+   
     /*  GENERATE PNG PASS  */
     const passImage = await generateVisitorPassImage({
       ...visitor._doc,
       hostName: host?.name,
     });
-
-    const imageDir = path.join(__dirname, "../uploads/passImages");
-    if (!fs.existsSync(imageDir)) fs.mkdirSync(imageDir, { recursive: true });
-
-    const imagePath = path.join(imageDir, `${visitorId}.png`);
-    fs.writeFileSync(imagePath, passImage);
-    visitor.passImage = imagePath;
+    // You can keep storing the passImage if you want, or just use for email
+    visitor.passImage = passImage;
 
     await visitor.save();
 
@@ -307,7 +283,7 @@ exports.approveVisitor = async (req, res) => {
         emailHTML,
         [
           { filename: "VisitorPass.png", content: passImage, cid: "visitor_pass" },
-          { filename: "VisitorPass.pdf", path: pdfPath },
+          { filename: "VisitorPass.pdf", content: pdfBuffer }, // <-- use buffer instead of path
           { filename: "VisitorQR.png", content: qrBuffer, cid: "visitor_qr" },
         ]
       );
@@ -325,7 +301,6 @@ exports.approveVisitor = async (req, res) => {
     res.status(500).json({ msg: "Server error", error: err.message });
   }
 };
-
 
 
 //  Reject Visitor if dont want 
@@ -399,6 +374,7 @@ exports.addVisitorByEmployee = async (req, res) => {
     res.status(500).json({ msg: "Server Error" });
   }
 };
+
 
 
 
