@@ -4,15 +4,13 @@ const sendEmail = async (to, subject, html, attachments = []) => {
   try {
     const transporter = nodemailer.createTransport({
       host: process.env.EMAIL_HOST,
-      port: 587,
-      secure: false,
+      port: 465,
+      secure: true,
       auth: {
         user: process.env.EMAIL_USER,
         pass: process.env.EMAIL_PASS,
       },
-      tls: {
-        rejectUnauthorized: false, 
-      },
+     
     });
 
     await transporter.sendMail({
@@ -30,5 +28,6 @@ const sendEmail = async (to, subject, html, attachments = []) => {
 };
 
 module.exports = sendEmail;
+
 
 
