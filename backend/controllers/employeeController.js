@@ -233,25 +233,25 @@ exports.approveVisitor = async (req, res) => {
     // Always approve
     visitor.status = "approved";
 
-    // Generate QR if missing
+    // Generate QR 
     if (!visitor.qrData) {
       visitor.qrData = await generateQRBase64(
         JSON.stringify({ visitorId })
       );
     }
 
-    /* GENERATE PDF PASS IN-MEMORY */
+    /* PDF PASS */
     const pdfBuffer = await generatePDF(
       { ...visitor._doc, hostName: host?.name },
       visitor.qrData
     );
    
-    /*  GENERATE PNG PASS  */
+    /*   PNG PASS  */
     const passImage = await generateVisitorPassImage({
       ...visitor._doc,
       hostName: host?.name,
     });
-    // You can keep storing the passImage if you want, or just use for email
+    
     visitor.passImage = passImage;
 
     await visitor.save();
@@ -283,7 +283,7 @@ exports.approveVisitor = async (req, res) => {
         emailHTML,
         [
           { filename: "VisitorPass.png", content: passImage, cid: "visitor_pass" },
-          { filename: "VisitorPass.pdf", content: pdfBuffer }, // <-- use buffer instead of path
+          { filename: "VisitorPass.pdf", content: pdfBuffer }, //  use buffer 
           { filename: "VisitorQR.png", content: qrBuffer, cid: "visitor_qr" },
         ]
       );
@@ -374,6 +374,7 @@ exports.addVisitorByEmployee = async (req, res) => {
     res.status(500).json({ msg: "Server Error" });
   }
 };
+
 
 
 
