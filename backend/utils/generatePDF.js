@@ -72,4 +72,3 @@ async function generatePDF(visitor, qrBase64, outputPath) {
 module.exports = {generatePDF};
 
 
-
