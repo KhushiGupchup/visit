@@ -1,7 +1,7 @@
-const nodemailer = require("nodemailer");//library to send email
+const nodemailer = require("nodemailer");
 
-const sendEmail = async (to, subject, html, attachments = []) => {
-  try {
+const sendEmail = (to, subject, html, attachments = []) => {
+  return new Promise((resolve, reject) => {
     const transporter = nodemailer.createTransport({
       host: process.env.EMAIL_HOST,
       port: 465,
@@ -10,24 +10,26 @@ const sendEmail = async (to, subject, html, attachments = []) => {
         user: process.env.EMAIL_USER,
         pass: process.env.EMAIL_PASS,
       },
-     
     });
 
-    await transporter.sendMail({
-      from: process.env.FROM_EMAIL,
-      to,
-      subject,
-      html,
-      attachments, //  attachments array added
-    });
-
-    console.log("Email sent to:", to);
-  } catch (error) {
-    console.log("Email Error:", error.message);
-  }
+    transporter.sendMail(
+      {
+        from: process.env.FROM_EMAIL,
+        to,
+        subject,
+        html,
+        attachments,
+      },
+      (error, info) => {
+        if (error) {
+          console.log("Email Error:", error.message);
+          return reject(error);
+        }
+        console.log("Email sent to:", to);
+        resolve(info);
+      }
+    );
+  });
 };
 
 module.exports = sendEmail;
-
-
-
