@@ -14,4 +14,4 @@ select role :employee for employee and for security role:security
 so after receiving you can see dashboard
 and visitor registration with email,password is ur own
 
-on email on approval the pass,pdf,qrcode is sent.
+on email on approval the pass,pdf,qrcode is sent to visitor.
