@@ -105,7 +105,7 @@ exports.getMyVisits =async(req,res)=>{
             }
             return{
                 _id:v._id,name:v.name,email:v.email,phone:v.phone,
-                purpose:v.purpose,status:v.status,scheduleAt:v.scheduledAt,
+                purpose:v.purpose,status:v.status,scheduledAt:v.scheduledAt,
                 slot:v.slot,qrData:v.qrData,hostEmpId:v.hostEmpId,hostName,
                 photo:v.photo || null
             };
