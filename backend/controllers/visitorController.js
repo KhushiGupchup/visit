@@ -92,7 +92,7 @@ exports.registerVisitorForm = async(req,res)=>{
 //visitor visits
 exports.getMyVisits =async(req,res)=>{
     try{
-        const visitorEmail = req.visitorinfo.email;
+        const visitorEmail = req.visitor.email;
 
         const visit = await Visitor.find({email:visitorEmail}).sort({scheduledAt:-1});
 
