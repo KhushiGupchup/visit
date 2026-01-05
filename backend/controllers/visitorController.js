@@ -94,7 +94,7 @@ exports.getMyVisits =async(req,res)=>{
     try{
         const visitorEmail = req.visitorinfo.email;
 
-        const visit = (await Visitor.find({email:visitorEmail})).sort({scheduleAt:-1});
+        const visit = (await Visitor.find({email:visitorEmail})).sort({scheduledAt:-1});
 
         const info = await Promise.all(visit.map(async(v)=>{
             let hostName = v.hostName;
