@@ -7,7 +7,7 @@ const fs = require("fs");
 const { generateQRBase64 } = require("../utils/generateQR");
 const { generatePDF } = require("../utils/generatePDF");
 const { generateVisitorPassImage } = require("../utils/paasImage");
-const sendEmail = require("../utils/sendEmails");
+const sendEmail = require("../utils/sendEmail");
 
 // Employee Dashboard 
 
@@ -374,6 +374,7 @@ exports.addVisitorByEmployee = async (req, res) => {
     res.status(500).json({ msg: "Server Error" });
   }
 };
+
 
 
 
