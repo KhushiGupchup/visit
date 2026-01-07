@@ -5,8 +5,9 @@ const sendEmail = async (to, subject, html, attachments = []) => {
     user: process.env.EMAIL_USER,
     password: process.env.EMAIL_PASS,
     host: process.env.EMAIL_HOST,
-    port: Number(process.env.EMAIL_PORT) || 465,
-    ssl: Number(process.env.EMAIL_PORT) === 465,
+    port: 587,
+    ssl: false,
+    tls: true,
   });
 
   const message = {
