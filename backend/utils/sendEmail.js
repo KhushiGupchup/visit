@@ -1,42 +1,30 @@
-const email = require("emailjs");
+const { SMTPClient } = require("emailjs");
 
 const sendEmail = async (to, subject, html, attachments = []) => {
   try {
-    const server = email.server.connect({
+    const client = new SMTPClient({
       user: process.env.EMAIL_USER,
       password: process.env.EMAIL_PASS,
       host: process.env.EMAIL_HOST,
-      ssl: true, // change to tls: true if using port 587
+      ssl: true, // use tls: true if port 587
     });
 
-    // Prepare attachments for EmailJS
-    const emailAttachments = [
-      { data: html, alternative: true }, // HTML body
-      ...attachments.map(file => {
-        // file can have { filename, content, cid }
-        const attachment = {};
-        if (file.filename) attachment.name = file.filename;
-        if (file.content) attachment.data = file.content;
-        if (file.cid) attachment.cid = file.cid;
-        return attachment;
-      }),
-    ];
+    const message = {
+      from: process.env.FROM_EMAIL,
+      to,
+      subject,
+      attachment: [
+        { data: html, alternative: true }, // HTML body
+        ...attachments.map(file => ({
+          name: file.filename,
+          data: file.content,
+          headers: file.cid ? { "Content-ID": `<${file.cid}>` } : undefined,
+        })),
+      ],
+    };
 
-    // EmailJS uses callback, so wrap in Promise for async/await
-    await new Promise((resolve, reject) => {
-      server.send(
-        {
-          from: process.env.FROM_EMAIL,
-          to,
-          subject,
-          attachment: emailAttachments,
-        },
-        (err, message) => {
-          if (err) reject(err);
-          else resolve(message);
-        }
-      );
-    });
+    // Send email as promise
+    await client.sendAsync(message);
 
     console.log("Email sent to:", to);
   } catch (error) {
