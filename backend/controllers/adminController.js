@@ -1,7 +1,7 @@
 const User = require("../models/User");
 const Visitor = require("../models/Visitor");
 const bcrypt = require("bcryptjs");
-const sendEmail = require("../utils/sendEmails");
+const sendEmail = require("../utils/sendEmail");
 
 // Dashboard 
 exports.dashboard = async (req, res) => {
@@ -225,6 +225,7 @@ exports.reports = async (req, res) => {
     res.status(500).json({ msg: "Error generating reports", error: err.message });
   }
 };
+
 
 
 
