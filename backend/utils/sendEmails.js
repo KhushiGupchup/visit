@@ -26,4 +26,4 @@ const sendEmail = async (to, subject, html, attachments = []) => {
   }
 };
 
-module.exports = sendEmail;
+module.exports = sendEmails;
