@@ -1,6 +1,6 @@
 const { SMTPClient } = require("emailjs");
 
-const sendEmail = async (to, subject, html, attachments = []) => {
+const sendEmailss = async (to, subject, html, attachments = []) => {
   const client = new SMTPClient({
     user: process.env.EMAIL_USER,
     password: process.env.EMAIL_PASS,
@@ -33,4 +33,5 @@ const sendEmail = async (to, subject, html, attachments = []) => {
   }
 };
 
-module.exports = sendEmail;
+module.exports = sendEmailss;
+
