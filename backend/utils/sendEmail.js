@@ -1,37 +1,21 @@
-const nodemailer = require("nodemailer");
+const emailjs = require("@emailjs/nodejs");
 
-const transporter = nodemailer.createTransport({
-  host: process.env.EMAIL_HOST,
-  port: 587,
-  secure: false,
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS,
-  },
-});
-
-// Verify connection
-transporter.verify((error, success) => {
-  if (error) {
-    console.error("SMTP VERIFY FAILED:", error);
-  } else {
-    console.log("SMTP SERVER READY");
-  }
-});
-
-const sendEmail = async (to, subject, html, attachments = []) => {
+const sendEmail = async (toEmail, templateParams = {}, attachments = []) => {
   try {
-    await transporter.sendMail({
-      from: process.env.FROM_EMAIL,
-      to,
-      subject,
-      html,
-      attachments,
-    });
-    console.log("Email sent to:", to);
-  } catch (error) {
-    console.error("Email Error:", error);
-    throw error;
+    await emailjs.send(
+      process.env.EMAILJS_SERVICE_ID,   // Your EmailJS service ID
+      process.env.EMAILJS_TEMPLATE_ID,  // Your EmailJS template ID
+      {
+        ...templateParams,
+        to_email: toEmail,
+        attachments, // array of files in base64
+      },
+      process.env.EMAILJS_PRIVATE_KEY   // Your EmailJS private key
+    );
+    console.log("Email sent to:", toEmail);
+  } catch (err) {
+    console.error("EmailJS send error:", err);
+    throw err;
   }
 };
 
