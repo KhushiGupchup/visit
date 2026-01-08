@@ -9,25 +9,25 @@ const { generatePDF } = require("../utils/generatePDF");
 const { generateVisitorPassImage } = require("../utils/paasImage");
 const sendEmail = require("../utils/sendEmail");
 
-// Employee Dashboard 
-
+// ===== Dashboard =====
+// 
 exports.dashboard = async (req, res) => {
   try {
     const empId = Number(req.user.empId);
 
-    // Date to get visitors
+    // Date boundaries
     const todayStart = new Date();
     todayStart.setHours(0, 0, 0, 0);
 
     const todayEnd = new Date();
     todayEnd.setHours(23, 59, 59, 999);
 
-    // Total visitors for particulat employee
+    // Total visitors
     const myVisitors = await Visitor.countDocuments({
       hostEmpId: empId,
     });
 
-    // Pending visitors of that employee
+    // Pending visitors
     const pendingVisitors = await Visitor.countDocuments({
       hostEmpId: empId,
       status: "pending",
@@ -60,7 +60,7 @@ exports.dashboard = async (req, res) => {
 };
 
 
-//  Schedule Visitor by employee
+// ===== Schedule Visitor =====
 exports.scheduleVisitor = async (req, res) => {
   try {
     const { name, email, phone, purpose, scheduledAt } = req.body;
@@ -83,56 +83,66 @@ exports.scheduleVisitor = async (req, res) => {
       hostEmpId: Number(req.user.empId),
       scheduledAt: dateObj,
       status: "approved",
-      slot,
+      slot
     });
 
     // Get host info
     const host = await User.findOne({ empId: req.user.empId });
 
-    // Generate QR, PDF, and PNG pass
+    // Generate QR
     const qrData = await generateQRBase64(JSON.stringify({ visitorId: visitor._id }));
-    const pdfBuffer = await generatePDF({ ...visitor._doc, hostName: host?.name }, qrData);
+
+    // Generate PDF
+    const pdfDir = path.join(__dirname, "../uploads/pdfPass");
+    if (!fs.existsSync(pdfDir)) fs.mkdirSync(pdfDir, { recursive: true });
+    const pdfPath = path.join(pdfDir, `${visitor._id}.pdf`);
+    await generatePDF({ ...visitor._doc, hostName: host?.name }, qrData, pdfPath);
+
+    // Generate PNG pass
     const passImage = await generateVisitorPassImage({ ...visitor._doc, hostName: host?.name });
 
+    // Update visitor
     visitor.qrData = qrData;
+    visitor.passPdf = pdfPath;
     await visitor.save();
 
-    // Send Email via EmailJS
+    // Send email
     if (email) {
-      // Convert buffers to base64
-      const qrBase64 = qrData.split(",")[1];
-      const pdfBase64 = pdfBuffer.toString("base64");
-      const passBase64 = passImage.toString("base64");
+      const qrBuffer = Buffer.from(qrData.split(",")[1], "base64");
+      const emailHTML = `
+        <div style="max-width:400px;margin:0 auto;font-family:sans-serif;border:1px solid #e0e0e0;border-radius:12px;overflow:hidden;">
+          <div style="background:#3b82f6;color:white;text-align:center;padding:16px;font-size:20px;font-weight:bold;">
+            VPMS Visitor Pass
+          </div>
+          <div style="padding:16px;text-align:center;">
+            <img src="cid:visitor_pass" alt="Visitor Pass" style="width:300px;height:auto;" />
+          </div>
+          <div style="background:#10b981;color:white;text-align:center;padding:12px;font-size:20px; font-weight:bold">
+            Please show this pass at the entrance.
+          </div>
+        </div>
+      `;
 
-      const attachments = [
-        { name: "VisitorPass.png", data: passBase64 },
-        { name: "VisitorPass.pdf", data: pdfBase64 },
-        { name: "VisitorQR.png", data: qrBase64 },
-      ];
-
-      const templateParams = {
-        visitor_name: visitor.name,
-        host_name: host?.name || "Host",
-        message: "Please show this pass at the entrance.",
-      };
-
-      // Use EmailJS PUBLIC key
-      await sendEmail(email, templateParams, attachments);
+      await sendEmail(email, "Your VPMS Visitor Pass", emailHTML, [
+        { filename: "VisitorPass.png", content: passImage, cid: "visitor_pass" },
+        { filename: "VisitorPass.pdf", path: pdfPath },
+        { filename: "VisitorQR.png", content: qrBuffer, cid: "visitor_qr" },
+      ]);
     }
 
     res.json({ msg: "Visitor scheduled successfully!", visitor });
+
   } catch (err) {
-    console.error("Schedule Visitor Error:", err);
+    console.error(err);
     res.status(500).json({ msg: "Error scheduling visitor", error: err.message });
   }
 };
 
-
 // Get Employee Visitors 
 exports.getMyVisitors = async (req, res) => {
   try {
-    const visitors = await Visitor.find({ hostEmpId: Number(req.user.empId) }).sort({ scheduledAt: -1 });//latest visitor
-     // get all data and hostname from empid
+    const visitors = await Visitor.find({ hostEmpId: Number(req.user.empId) }).sort({ scheduledAt: -1 });
+
     const formatted = await Promise.all(visitors.map(async (v) => {
       const host = await User.findOne({ empId: v.hostEmpId });
       return {
@@ -147,10 +157,7 @@ exports.getMyVisitors = async (req, res) => {
         qrData: v.qrData,
         hostName: host?.name || "Unknown",
         hostEmpId: v.hostEmpId,
-        photo: v.photo
-  ? `https://visit-1-ren0.onrender.com/uploads/${v.photo}`
-  : null,
-
+        photo: v.photo || null, 
       };
     }));
 
@@ -162,10 +169,10 @@ exports.getMyVisitors = async (req, res) => {
 };
 
 
-//  Change Password after using random password once 
+//  Change Password 
 exports.changePassword = async (req, res) => {
   try {
-    const { empId, newPassword, confirmPassword } = req.body;//get all req field
+    const { empId, newPassword, confirmPassword } = req.body;
 
     if (!empId || !newPassword || !confirmPassword)
       return res.status(400).json({ msg: "All fields are required" });
@@ -205,54 +212,94 @@ exports.deleteVisitor = async (req, res) => {
   }
 };
 
-// Approve Visitor and send the qr and pdfpass to them
+// Approve Visitor
 
 exports.approveVisitor = async (req, res) => {
   try {
     const { visitorId } = req.params;
     const visitor = await Visitor.findById(visitorId);
 
-    if (!visitor) return res.status(404).json({ msg: "Visitor not found" });
+    if (!visitor)
+      return res.status(404).json({ msg: "Visitor not found" });
 
     const host = await User.findOne({ empId: visitor.hostEmpId });
+
     const alreadyApproved = visitor.status === "approved";
 
+    // Always approve
     visitor.status = "approved";
 
     // Generate QR if missing
     if (!visitor.qrData) {
-      visitor.qrData = await generateQRBase64(JSON.stringify({ visitorId }));
+      visitor.qrData = await generateQRBase64(
+        JSON.stringify({ visitorId })
+      );
     }
 
-    // Generate PDF and PNG pass
-    const pdfBuffer = await generatePDF({ ...visitor._doc, hostName: host?.name }, visitor.qrData);
-    const passImage = await generateVisitorPassImage({ ...visitor._doc, hostName: host?.name });
+    /* ------------------ GENERATE PDF PASS ------------------ */
+    const pdfDir = path.join(__dirname, "../uploads/pdfPass");
+    if (!fs.existsSync(pdfDir)) fs.mkdirSync(pdfDir, { recursive: true });
 
-    visitor.passImage = passImage;
+    const pdfPath = path.join(pdfDir, `${visitorId}.pdf`);
+    await generatePDF(
+      { ...visitor._doc, hostName: host?.name },
+      visitor.qrData,
+      pdfPath
+    );
+    visitor.passPdf = pdfPath;
+
+    /* ------------------ GENERATE PNG PASS ------------------ */
+    const passImage = await generateVisitorPassImage({
+      ...visitor._doc,
+      hostName: host?.name,
+    });
+
+    const imageDir = path.join(__dirname, "../uploads/passImages");
+    if (!fs.existsSync(imageDir)) fs.mkdirSync(imageDir, { recursive: true });
+
+    const imagePath = path.join(imageDir, `${visitorId}.png`);
+    fs.writeFileSync(imagePath, passImage);
+    visitor.passImage = imagePath;
+
     await visitor.save();
 
-    // Send Email via EmailJS
+    /* ------------------ SEND EMAIL ------------------ */
     if (visitor.email) {
-      const qrBase64 = visitor.qrData.split(",")[1];
-      const pdfBase64 = pdfBuffer.toString("base64");
-      const passBase64 = passImage.toString("base64");
+      const qrBuffer = Buffer.from(
+        visitor.qrData.split(",")[1],
+        "base64"
+      );
 
-      const attachments = [
-        { name: "VisitorPass.png", data: passBase64 },
-        { name: "VisitorPass.pdf", data: pdfBase64 },
-        { name: "VisitorQR.png", data: qrBase64 },
-      ];
+      const emailHTML = `
+        <div style="max-width:400px;margin:0 auto;font-family:sans-serif;border:1px solid #e0e0e0;border-radius:12px;overflow:hidden;">
+          <div style="background:#3b82f6;color:white;text-align:center;padding:16px;font-size:20px;font-weight:bold;">
+            VPMS Visitor Pass
+          </div>
+          <div style="padding:16px;text-align:center;">
+            <img src="cid:visitor_pass" alt="Visitor Pass" style="width:300px;height:auto;" />
+          </div>
+          <div style="background:#10b981;color:white;text-align:center;padding:12px;font-size:20px;font-weight:bold">
+            Please show this pass at the entrance.
+          </div>
+        </div>
+      `;
 
-      const templateParams = {
-        name: visitor.name,
-        message: "<p>Please show this pass at the entrance.</p>",
-      };
-
-      await sendEmail(visitor.email, templateParams, attachments);
+      await sendEmail(
+        visitor.email,
+        "Your VPMS Visitor Pass",
+        emailHTML,
+        [
+          { filename: "VisitorPass.png", content: passImage, cid: "visitor_pass" },
+          { filename: "VisitorPass.pdf", path: pdfPath },
+          { filename: "VisitorQR.png", content: qrBuffer, cid: "visitor_qr" },
+        ]
+      );
     }
 
     return res.json({
-      msg: alreadyApproved ? "Visitor is already approved" : "Visitor approved successfully",
+      msg: alreadyApproved
+        ? "Visitor is already approved"
+        : "Visitor approved successfully",
       visitor,
     });
 
@@ -263,7 +310,8 @@ exports.approveVisitor = async (req, res) => {
 };
 
 
-//  Reject Visitor if dont want 
+
+// ===== Reject Visitor =====
 exports.rejectVisitor = async (req, res) => {
   try {
     const { visitorId } = req.params;
@@ -298,7 +346,7 @@ exports.rejectVisitor = async (req, res) => {
   }
 };
 
-// add visitor by employee
+// employeeController.js
 exports.addVisitorByEmployee = async (req, res) => {
   try {
     // Employee scheduling a visitor
@@ -325,7 +373,8 @@ exports.addVisitorByEmployee = async (req, res) => {
 
     const newVisit = await Visitor.create(visitorData);
 
-   
+    // Optionally generate QR code here
+    // const qrData = await generateQR(newVisit);
 
     res.status(201).json({ msg: "Visitor scheduled successfully", data: newVisit });
 
@@ -334,18 +383,3 @@ exports.addVisitorByEmployee = async (req, res) => {
     res.status(500).json({ msg: "Server Error" });
   }
 };
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
