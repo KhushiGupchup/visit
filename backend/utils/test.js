@@ -1,4 +1,5 @@
-import net from "net";
+const net = require("net");
+
 
 const testPort = (host, port) => {
   const socket = new net.Socket();
