@@ -19,4 +19,4 @@ const sendEmail = async (toEmail, templateParams = {}, attachments = []) => {
   }
 };
 
-module.exports = sendEmail; here do
+module.exports = sendEmail; 
