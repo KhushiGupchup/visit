@@ -99,6 +99,7 @@ exports.scheduleVisitor = async (req, res) => {
 
     // Send Email via EmailJS
     if (email) {
+      // Convert buffers to base64
       const qrBase64 = qrData.split(",")[1];
       const pdfBase64 = pdfBuffer.toString("base64");
       const passBase64 = passImage.toString("base64");
@@ -110,20 +111,22 @@ exports.scheduleVisitor = async (req, res) => {
       ];
 
       const templateParams = {
-        name: visitor.name,
-        message: "<p>Please show this pass at the entrance.</p>",
+        visitor_name: visitor.name,
+        host_name: host?.name || "Host",
+        message: "Please show this pass at the entrance.",
       };
 
+      // Use EmailJS PUBLIC key
       await sendEmail(email, templateParams, attachments);
     }
 
     res.json({ msg: "Visitor scheduled successfully!", visitor });
-
   } catch (err) {
     console.error("Schedule Visitor Error:", err);
     res.status(500).json({ msg: "Error scheduling visitor", error: err.message });
   }
 };
+
 
 // Get Employee Visitors 
 exports.getMyVisitors = async (req, res) => {
@@ -331,6 +334,7 @@ exports.addVisitorByEmployee = async (req, res) => {
     res.status(500).json({ msg: "Server Error" });
   }
 };
+
 
 
 
