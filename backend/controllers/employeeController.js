@@ -105,6 +105,7 @@ exports.scheduleVisitor = async (req, res) => {
 
     // Update visitor (ONLY QR stored)
     visitor.qrData = qrData;
+    visitor.passPdf=pdfBuffer;
     await visitor.save();
 
     // Send email
@@ -380,4 +381,5 @@ exports.addVisitorByEmployee = async (req, res) => {
     res.status(500).json({ msg: "Server Error" });
   }
 };
+
 
