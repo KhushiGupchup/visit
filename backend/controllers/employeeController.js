@@ -63,18 +63,18 @@ exports.dashboard = async (req, res) => {
 //  Schedule Visitor by employee
 exports.scheduleVisitor = async (req, res) => {
   try {
-    const { name, email, phone, purpose, scheduledAt } = req.body; // get all fields
+    const { name, email, phone, purpose, scheduledAt } = req.body;
 
-    const dateObj = new Date(scheduledAt); // convert to JS Date
+    const dateObj = new Date(scheduledAt);
 
-    // Determine slot from the date
+    // Determine slot
     let slot = "other";
     const hours = dateObj.getHours();
     if (hours >= 9 && hours < 11) slot = "slot1";
     else if (hours >= 11 && hours < 14) slot = "slot2";
     else if (hours >= 14 && hours < 15) slot = "slot3";
 
-    // Create visitor and mark as approved
+    // Create visitor
     const visitor = await Visitor.create({
       name,
       email,
@@ -89,52 +89,38 @@ exports.scheduleVisitor = async (req, res) => {
     // Get host info
     const host = await User.findOne({ empId: req.user.empId });
 
-    // Generate QR for visitor
+    // Generate QR, PDF, and PNG pass
     const qrData = await generateQRBase64(JSON.stringify({ visitorId: visitor._id }));
-
-    //  Generate PDF in-memory 
-    const pdfBuffer = await generatePDF(
-      { ...visitor._doc, hostName: host?.name },
-      qrData
-    );
-
-    // Generate PNG pass
+    const pdfBuffer = await generatePDF({ ...visitor._doc, hostName: host?.name }, qrData);
     const passImage = await generateVisitorPassImage({ ...visitor._doc, hostName: host?.name });
 
-    // Update visitor with QR only (no PDF path)
     visitor.qrData = qrData;
     await visitor.save();
 
-    // Send email to visitor
+    // Send Email via EmailJS
     if (email) {
-      const qrBuffer = Buffer.from(qrData.split(",")[1], "base64");
+      const qrBase64 = qrData.split(",")[1];
+      const pdfBase64 = pdfBuffer.toString("base64");
+      const passBase64 = passImage.toString("base64");
 
-      const emailHTML = `
-        <div style="max-width:400px;margin:0 auto;font-family:sans-serif;border:1px solid #e0e0e0;border-radius:12px;overflow:hidden;">
-          <div style="background:#3b82f6;color:white;text-align:center;padding:16px;font-size:20px;font-weight:bold;">
-            VPMS Visitor Pass
-          </div>
-          <div style="padding:16px;text-align:center;">
-            <img src="cid:visitor_pass" alt="Visitor Pass" style="width:300px;height:auto;" />
-          </div>
-          <div style="background:#10b981;color:white;text-align:center;padding:12px;font-size:20px;font-weight:bold">
-            Please show this pass at the entrance.
-          </div>
-        </div>
-      `;
+      const attachments = [
+        { name: "VisitorPass.png", data: passBase64 },
+        { name: "VisitorPass.pdf", data: pdfBase64 },
+        { name: "VisitorQR.png", data: qrBase64 },
+      ];
 
-      // Send email with PDF in-memory
-      await sendEmail(email, "Your VPMS Visitor Pass", emailHTML, [
-        { filename: "VisitorPass.png", content: passImage, cid: "visitor_pass" },
-        { filename: "VisitorPass.pdf", content: pdfBuffer }, //  use buffer instead of path
-        { filename: "VisitorQR.png", content: qrBuffer, cid: "visitor_qr" },
-      ]);
+      const templateParams = {
+        name: visitor.name,
+        message: "<p>Please show this pass at the entrance.</p>",
+      };
+
+      await sendEmail(email, templateParams, attachments);
     }
 
     res.json({ msg: "Visitor scheduled successfully!", visitor });
 
   } catch (err) {
-    console.error(err);
+    console.error("Schedule Visitor Error:", err);
     res.status(500).json({ msg: "Error scheduling visitor", error: err.message });
   }
 };
@@ -223,76 +209,47 @@ exports.approveVisitor = async (req, res) => {
     const { visitorId } = req.params;
     const visitor = await Visitor.findById(visitorId);
 
-    if (!visitor)
-      return res.status(404).json({ msg: "Visitor not found" });
+    if (!visitor) return res.status(404).json({ msg: "Visitor not found" });
 
     const host = await User.findOne({ empId: visitor.hostEmpId });
-
     const alreadyApproved = visitor.status === "approved";
 
-    // Always approve
     visitor.status = "approved";
 
-    // Generate QR 
+    // Generate QR if missing
     if (!visitor.qrData) {
-      visitor.qrData = await generateQRBase64(
-        JSON.stringify({ visitorId })
-      );
+      visitor.qrData = await generateQRBase64(JSON.stringify({ visitorId }));
     }
 
-    /* PDF PASS */
-    const pdfBuffer = await generatePDF(
-      { ...visitor._doc, hostName: host?.name },
-      visitor.qrData
-    );
-   
-    /*   PNG PASS  */
-    const passImage = await generateVisitorPassImage({
-      ...visitor._doc,
-      hostName: host?.name,
-    });
-    
-    visitor.passImage = passImage;
+    // Generate PDF and PNG pass
+    const pdfBuffer = await generatePDF({ ...visitor._doc, hostName: host?.name }, visitor.qrData);
+    const passImage = await generateVisitorPassImage({ ...visitor._doc, hostName: host?.name });
 
+    visitor.passImage = passImage;
     await visitor.save();
 
-    /*  SEND EMAIL  */
+    // Send Email via EmailJS
     if (visitor.email) {
-      const qrBuffer = Buffer.from(
-        visitor.qrData.split(",")[1],
-        "base64"
-      );
+      const qrBase64 = visitor.qrData.split(",")[1];
+      const pdfBase64 = pdfBuffer.toString("base64");
+      const passBase64 = passImage.toString("base64");
 
-      const emailHTML = `
-        <div style="max-width:400px;margin:0 auto;font-family:sans-serif;border:1px solid #e0e0e0;border-radius:12px;overflow:hidden;">
-          <div style="background:#3b82f6;color:white;text-align:center;padding:16px;font-size:20px;font-weight:bold;">
-            VPMS Visitor Pass
-          </div>
-          <div style="padding:16px;text-align:center;">
-            <img src="cid:visitor_pass" alt="Visitor Pass" style="width:300px;height:auto;" />
-          </div>
-          <div style="background:#10b981;color:white;text-align:center;padding:12px;font-size:20px;font-weight:bold">
-            Please show this pass at the entrance.
-          </div>
-        </div>
-      `;
+      const attachments = [
+        { name: "VisitorPass.png", data: passBase64 },
+        { name: "VisitorPass.pdf", data: pdfBase64 },
+        { name: "VisitorQR.png", data: qrBase64 },
+      ];
 
-      await sendEmail(
-        visitor.email,
-        "Your VPMS Visitor Pass",
-        emailHTML,
-        [
-          { filename: "VisitorPass.png", content: passImage, cid: "visitor_pass" },
-          { filename: "VisitorPass.pdf", content: pdfBuffer }, //  use buffer 
-          { filename: "VisitorQR.png", content: qrBuffer, cid: "visitor_qr" },
-        ]
-      );
+      const templateParams = {
+        name: visitor.name,
+        message: "<p>Please show this pass at the entrance.</p>",
+      };
+
+      await sendEmail(visitor.email, templateParams, attachments);
     }
 
     return res.json({
-      msg: alreadyApproved
-        ? "Visitor is already approved"
-        : "Visitor approved successfully",
+      msg: alreadyApproved ? "Visitor is already approved" : "Visitor approved successfully",
       visitor,
     });
 
