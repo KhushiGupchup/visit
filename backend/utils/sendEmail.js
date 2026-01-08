@@ -8,7 +8,7 @@ const sendEmail = async (to, subject, html, attachments = []) => {
       secure: true,
       auth: {
         user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_API,
+        pass: process.env.EMAIL_PASS,
       },
     });
 
