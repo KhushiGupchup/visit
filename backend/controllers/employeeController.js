@@ -105,8 +105,7 @@ exports.scheduleVisitor = async (req, res) => {
     await visitor.save();
 
     // Send email if email exists
-   // Send email if email exists
-if (email) {
+ if (email) {
   const emailHTML = `
     <div style="max-width:400px;margin:0 auto;font-family:sans-serif;border:1px solid #e0e0e0;border-radius:12px;overflow:hidden;">
       <div style="background:#3b82f6;color:white;text-align:center;padding:16px;font-size:20px;font-weight:bold;">
@@ -121,30 +120,27 @@ if (email) {
     </div>
   `;
 
- await sendEmail(
-  email,
-  "Your VPMS Visitor Pass",
-  emailHTML,
-  [
+  await sendEmail(email, "Your VPMS Visitor Pass", emailHTML, [
     {
       name: "VisitorPass.pdf",
-      data: pdfBuffer.toString("base64"), // must be 'data'
+      data: pdfBuffer, // Pass raw Buffer, sendEmail converts to base64
       type: "application/pdf",
     },
     {
       name: "VisitorPass.png",
-      data: passImageBuffer.toString("base64"),
+      data: passImageBuffer,
       type: "image/png",
     },
     {
       name: "VisitorQR.png",
-      data: qrBuffer.toString("base64"),
+      data: qrBuffer,
       type: "image/png",
     },
-  ]
-);
-
+  ]);
 }
+
+
+
 
     res.json({ msg: "Visitor scheduled successfully!", visitor });
 
@@ -417,6 +413,7 @@ exports.rejectVisitor = async (req, res) => {
 //     res.status(500).json({ msg: "Server Error" });
 //   }
 // };
+
 
 
 
