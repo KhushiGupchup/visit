@@ -112,7 +112,8 @@ exports.scheduleVisitor = async (req, res) => {
         VPMS Visitor Pass
       </div>
       <div style="padding:16px;text-align:center;">
-        <img src="data:image/png;base64,${passImageBuffer.toString("base64")}" alt="Visitor Pass" style="width:300px;height:auto;" />
+        <img src="data:image/png;base64,${passImageBuffer.toString("base64")}" 
+             alt="Visitor Pass" style="width:300px;height:auto;" />
       </div>
       <div style="background:#10b981;color:white;text-align:center;padding:12px;font-size:20px;font-weight:bold">
         Please show this pass at the entrance.
@@ -123,21 +124,22 @@ exports.scheduleVisitor = async (req, res) => {
   await sendEmail(email, "Your VPMS Visitor Pass", emailHTML, [
     {
       name: "VisitorPass.pdf",
-      data: pdfBuffer, // Pass raw Buffer, sendEmail converts to base64
+      content: pdfBuffer, // raw Buffer
       type: "application/pdf",
     },
     {
       name: "VisitorPass.png",
-      data: passImageBuffer,
+      content: passImageBuffer, // raw Buffer
       type: "image/png",
     },
     {
       name: "VisitorQR.png",
-      data: qrBuffer,
+      content: qrBuffer, // raw Buffer
       type: "image/png",
     },
   ]);
 }
+
 
 
 
@@ -413,6 +415,7 @@ exports.rejectVisitor = async (req, res) => {
 //     res.status(500).json({ msg: "Server Error" });
 //   }
 // };
+
 
 
 
