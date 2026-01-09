@@ -274,36 +274,37 @@ exports.rejectVisitor = async (req, res) => {
   }
 };
 
-// employeeController.js
-exports.addVisitorByEmployee = async (req, res) => {
-  try {
-    const employee = req.user;
-    if (!employee || employee.role !== "employee")
-      return res.status(403).json({ msg: "Access denied" });
+// // employeeController.js
+// exports.addVisitorByEmployee = async (req, res) => {
+//   try {
+//     const employee = req.user;
+//     if (!employee || employee.role !== "employee")
+//       return res.status(403).json({ msg: "Access denied" });
 
-    const allowedSlots = ["slot1", "slot2", "slot3", "other"];
-    const slot = allowedSlots.includes(req.body.slot) ? req.body.slot : "other";
+//     const allowedSlots = ["slot1", "slot2", "slot3", "other"];
+//     const slot = allowedSlots.includes(req.body.slot) ? req.body.slot : "other";
 
-    const visitorData = {
-      name: req.body.name,
-      email: req.body.email,
-      phone: req.body.phone,
-      hostEmpId: employee.empId,
-      hostName: employee.name,
-      purpose: req.body.purpose,
-      scheduledAt: req.body.scheduledAt,
-      slot,
-      status: "pending",
-      photo: req.file ? req.file.filename : null,
-    };
+//     const visitorData = {
+//       name: req.body.name,
+//       email: req.body.email,
+//       phone: req.body.phone,
+//       hostEmpId: employee.empId,
+//       hostName: employee.name,
+//       purpose: req.body.purpose,
+//       scheduledAt: req.body.scheduledAt,
+//       slot,
+//       status: "pending",
+//       photo: req.file ? req.file.filename : null,
+//     };
 
-    const newVisit = await Visitor.create(visitorData);
+//     const newVisit = await Visitor.create(visitorData);
 
-    // Optional: generate QR or PDF/email here if desired for pending visitors
+//     // Optional: generate QR or PDF/email here if desired for pending visitors
 
-    res.status(201).json({ msg: "Visitor scheduled successfully", data: newVisit });
-  } catch (err) {
-    console.error("Add Visitor Error:", err);
-    res.status(500).json({ msg: "Server Error" });
-  }
-};
+//     res.status(201).json({ msg: "Visitor scheduled successfully", data: newVisit });
+//   } catch (err) {
+//     console.error("Add Visitor Error:", err);
+//     res.status(500).json({ msg: "Server Error" });
+//   }
+// };
+
