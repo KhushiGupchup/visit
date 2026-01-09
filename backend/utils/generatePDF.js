@@ -5,16 +5,15 @@ async function generatePDF(visitor, qrBase64) {
     const doc = new PDFDocument({ size: "A4", margin: 50 });
     const chunks = [];
 
-    // Collect data into chunks
     doc.on("data", (chunk) => chunks.push(chunk));
     doc.on("end", () => resolve(Buffer.concat(chunks)));
     doc.on("error", reject);
 
     // Header
-    doc
-      .fontSize(24)
-      .fillColor("#008080")
-      .text("Visitor Pass", { align: "center", underline: true });
+    doc.fontSize(24).fillColor("#008080").text("Visitor Pass", {
+      align: "center",
+      underline: true,
+    });
     doc.moveDown(1.5);
 
     // Visitor Info
@@ -35,8 +34,8 @@ async function generatePDF(visitor, qrBase64) {
     doc.moveDown(2);
 
     // QR Code
-    const qrBuffer = Buffer.from(qrBase64.replace(/^data:image\/png;base64,/, ""), "base64");
-    const qrX = (doc.page.width - 150) / 2; // center
+    const qrBuffer = Buffer.from(qrBase64.split(",")[1], "base64");
+    const qrX = (doc.page.width - 150) / 2;
     doc.image(qrBuffer, qrX, doc.y, { width: 150 });
     doc.moveDown(2);
 
