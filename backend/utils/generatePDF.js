@@ -1,6 +1,6 @@
 const PDFDocument = require("pdfkit");
 
-const generatePDF = ({ visitor, qrBase64 }) => {
+const generatePDF = { visitor, qrBase64 } => {
   return new Promise((resolve, reject) => {
     try {
       const doc = new PDFDocument({ size: "A4", margin: 50 });
@@ -76,3 +76,4 @@ const generatePDF = ({ visitor, qrBase64 }) => {
 };
 
 module.exports = { generatePDF };
+
