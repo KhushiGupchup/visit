@@ -105,27 +105,45 @@ exports.scheduleVisitor = async (req, res) => {
     await visitor.save();
 
     // Send email if email exists
-    if (email) {
-      const emailHTML = `
-        <div style="max-width:400px;margin:0 auto;font-family:sans-serif;border:1px solid #e0e0e0;border-radius:12px;overflow:hidden;">
-          <div style="background:#3b82f6;color:white;text-align:center;padding:16px;font-size:20px;font-weight:bold;">
-            VPMS Visitor Pass
-          </div>
-          <div style="padding:16px;text-align:center;">
-            <img src="cid:visitor_pass" alt="Visitor Pass" style="width:300px;height:auto;" />
-          </div>
-          <div style="background:#10b981;color:white;text-align:center;padding:12px;font-size:20px; font-weight:bold">
-            Please show this pass at the entrance.
-          </div>
-        </div>
-      `;
+   // Send email if email exists
+if (email) {
+  const emailHTML = `
+    <div style="max-width:400px;margin:0 auto;font-family:sans-serif;border:1px solid #e0e0e0;border-radius:12px;overflow:hidden;">
+      <div style="background:#3b82f6;color:white;text-align:center;padding:16px;font-size:20px;font-weight:bold;">
+        VPMS Visitor Pass
+      </div>
+      <div style="padding:16px;text-align:center;">
+        <img src="cid:visitor_pass" alt="Visitor Pass" style="width:300px;height:auto;" />
+      </div>
+      <div style="background:#10b981;color:white;text-align:center;padding:12px;font-size:20px;font-weight:bold">
+        Please show this pass at the entrance.
+      </div>
+    </div>
+  `;
 
-      await sendEmail(email, "Your VPMS Visitor Pass", emailHTML, [
-        { filename: "VisitorPass.png", content: passImageBuffer, cid: "visitor_pass" },
-        { filename: "VisitorPass.pdf", content: pdfBuffer },
-        { filename: "VisitorQR.png", content: qrBuffer, cid: "visitor_qr" },
-      ]);
-    }
+  await sendEmail(
+    email,
+    "Your VPMS Visitor Pass",
+    emailHTML,
+    [
+      {
+        filename: "VisitorPass.png",
+        content: passImageBuffer,   // Buffer
+        cid: "visitor_pass",
+      },
+      {
+        filename: "VisitorPass.pdf",
+        content: pdfBuffer.toString("base64"),
+        type:"application/pdf",// Buffer
+      },
+      {
+        filename: "VisitorQR.png",
+        content: qrBuffer,          // Buffer
+        cid: "visitor_qr",
+      },
+    ]
+  );
+}
 
     res.json({ msg: "Visitor scheduled successfully!", visitor });
 
@@ -398,6 +416,7 @@ exports.rejectVisitor = async (req, res) => {
 //     res.status(500).json({ msg: "Server Error" });
 //   }
 // };
+
 
 
 
