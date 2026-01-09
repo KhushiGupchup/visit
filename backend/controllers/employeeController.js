@@ -122,22 +122,23 @@ exports.scheduleVisitor = async (req, res) => {
   `;
 
   await sendEmail(email, "Your VPMS Visitor Pass", emailHTML, [
-    {
-      name: "VisitorPass.pdf",
-      content: pdfBuffer, // raw Buffer
-      type: "application/pdf",
-    },
-    {
-      name: "VisitorPass.png",
-      content: passImageBuffer, // raw Buffer
-      type: "image/png",
-    },
-    {
-      name: "VisitorQR.png",
-      content: qrBuffer, // raw Buffer
-      type: "image/png",
-    },
-  ]);
+  {
+    name: "VisitorPass.pdf",
+    content: pdfBuffer, // must be Buffer
+    type: "application/pdf",
+  },
+  {
+    name: "VisitorPass.png",
+    content: passImageBuffer, // must be Buffer
+    type: "image/png",
+  },
+  {
+    name: "VisitorQR.png",
+    content: qrBuffer, // must be Buffer
+    type: "image/png",
+  },
+]);
+
 }
 
 
@@ -415,6 +416,7 @@ exports.rejectVisitor = async (req, res) => {
 //     res.status(500).json({ msg: "Server Error" });
 //   }
 // };
+
 
 
 
