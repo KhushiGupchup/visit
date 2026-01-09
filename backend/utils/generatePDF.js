@@ -1,19 +1,20 @@
 const PDFDocument = require("pdfkit");
-const { PassThrough } = require("stream");
 
-async function generatePDF(visitor, qrBase64) {
+const generatePDF = ({ visitor, qrBase64 }) => {
   return new Promise((resolve, reject) => {
     try {
       const doc = new PDFDocument({ size: "A4", margin: 50 });
-
-      const stream = new PassThrough();
       const chunks = [];
 
-      stream.on("data", chunk => chunks.push(chunk));
-      stream.on("end", () => resolve(Buffer.concat(chunks)));
-      stream.on("error", reject);
+      // Collect PDF data
+      doc.on("data", (chunk) => chunks.push(chunk));
 
-      doc.pipe(stream);
+      doc.on("end", () => {
+        const pdfBuffer = Buffer.concat(chunks);
+        resolve(pdfBuffer);
+      });
+
+      doc.on("error", reject);
 
       // Title
       doc
@@ -62,9 +63,9 @@ async function generatePDF(visitor, qrBase64) {
           qrBase64.replace(/^data:image\/png;base64,/, ""),
           "base64"
         );
+
         const qrX = (doc.page.width - 150) / 2;
         doc.image(qrBuffer, qrX, doc.y, { width: 150 });
-        doc.moveDown(2);
       }
 
       doc.end();
@@ -72,6 +73,6 @@ async function generatePDF(visitor, qrBase64) {
       reject(err);
     }
   });
-}
+};
 
 module.exports = { generatePDF };
