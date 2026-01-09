@@ -82,7 +82,7 @@ exports.scheduleVisitor = async (req, res) => {
       hostEmpId: Number(req.user.empId),
       scheduledAt: dateObj,
       status: "approved",
-      slot
+      slot,
     });
 
     // Get host info
@@ -91,14 +91,16 @@ exports.scheduleVisitor = async (req, res) => {
     // --- Generate QR code ---
     const qrData = await generateQRBase64(JSON.stringify({ visitorId: visitor._id }));
     const qrBuffer = Buffer.from(qrData.split(",")[1], "base64");
-    const qrBase64 = qrBuffer.toString("base64");
 
     // --- Generate PDF & PNG in-memory ---
     const pdfBuffer = await generatePDF({ ...visitor._doc, hostName: host?.name }, qrData);
     const passImageBuffer = await generateVisitorPassImage({ ...visitor._doc, hostName: host?.name });
-    const passBase64 = passImageBuffer.toString("base64");
 
-    // Save visitor QR only
+    // Convert pass image for inline display
+    const passBase64 = passImageBuffer.toString("base64");
+    const qrBase64 = qrBuffer.toString("base64");
+
+    // Save visitor QR only (optional)
     visitor.qrData = qrData;
     visitor.passPdf = null;
     visitor.passImage = null;
@@ -111,14 +113,17 @@ exports.scheduleVisitor = async (req, res) => {
           <div style="background:#3b82f6;color:white;text-align:center;padding:16px;font-size:20px;font-weight:bold;">
             VPMS Visitor Pass
           </div>
+
           <div style="padding:16px;text-align:center;">
             <!-- Visitor Pass Image -->
-            <img src="data:image/png;base64,${passBase64}" alt="Visitor Pass" style="width:300px;height:auto;" />
+            <img src="cid:visitor_pass" alt="Visitor Pass" style="width:300px;height:auto;" />
           </div>
+
           <div style="padding:16px;text-align:center;">
             <!-- QR Code Image -->
-            <img src="data:image/png;base64,${qrBase64}" alt="Visitor QR" style="width:150px;height:auto;" />
+            <img src="cid:visitor_qr" alt="Visitor QR" style="width:150px;height:auto;" />
           </div>
+
           <div style="background:#10b981;color:white;text-align:center;padding:12px;font-size:20px;font-weight:bold">
             Please show this pass and QR at the entrance.
           </div>
@@ -126,35 +131,32 @@ exports.scheduleVisitor = async (req, res) => {
       `;
 
       await sendEmail(email, "Your VPMS Visitor Pass", emailHTML, [
-  {
-    name: "VisitorPass.pdf",
-    type: "application/pdf",
-    content: pdfBuffer.toString("base64"),
-  },
-  {
-    name: "VisitorPass.png",
-    type: "image/png",
-    content: passImageBuffer.toString("base64"),
-    cid: "visitor_pass" // optional, used in <img src="cid:visitor_pass" />
-  },
-  {
-    name: "VisitorQR.png",
-    type: "image/png",
-    content: qrBuffer.toString("base64"),
-    cid: "visitor_qr"
-  },
-]);
-
+        {
+          name: "VisitorPass.pdf",
+          type: "application/pdf",
+          content: pdfBuffer, // send Buffer directly
+        },
+        {
+          name: "VisitorPass.png",
+          type: "image/png",
+          content: passImageBuffer,
+          cid: "visitor_pass", // referenced in HTML
+        },
+        {
+          name: "VisitorQR.png",
+          type: "image/png",
+          content: qrBuffer,
+          cid: "visitor_qr", // referenced in HTML
+        },
+      ]);
     }
 
     res.json({ msg: "Visitor scheduled successfully!", visitor });
-
   } catch (err) {
     console.error("Schedule Visitor Error:", err);
     res.status(500).json({ msg: "Error scheduling visitor", error: err.message });
   }
 };
-
 
 // ===== Approve Visitor =====
 exports.approveVisitor = async (req, res) => {
@@ -421,6 +423,7 @@ exports.rejectVisitor = async (req, res) => {
 //     res.status(500).json({ msg: "Server Error" });
 //   }
 // };
+
 
 
 
