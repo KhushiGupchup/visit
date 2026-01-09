@@ -133,6 +133,36 @@ exports.scheduleVisitor = async (req, res) => {
   }
 };
 
+// get visitor
+exports.getMyVisitors = async (req, res) => {
+  try {
+    const visitors = await Visitor.find({ hostEmpId: Number(req.user.empId) }).sort({ scheduledAt: -1 });
+
+    const formatted = await Promise.all(visitors.map(async (v) => {
+      const host = await User.findOne({ empId: v.hostEmpId });
+      return {
+        _id: v._id,
+        name: v.name,
+        email: v.email,
+        phone: v.phone,
+        purpose: v.purpose,
+        status: v.status,
+        scheduledAt: v.scheduledAt,
+        slot: v.slot,
+        qrData: v.qrData,
+        hostName: host?.name || "Unknown",
+        hostEmpId: v.hostEmpId,
+        photo: v.photo || null, 
+      };
+    }));
+
+    res.json(formatted);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ msg: "Error fetching your visitors" });
+  }
+};
+
 //  Change Password 
 exports.changePassword = async (req, res) => {
   try {
@@ -307,4 +337,5 @@ exports.rejectVisitor = async (req, res) => {
 //     res.status(500).json({ msg: "Server Error" });
 //   }
 // };
+
 
