@@ -10,6 +10,7 @@ const resend = new Resend(process.env.RESEND_API_KEY);
  * @param {string} subject - email subject
  * @param {string} html - HTML content
  * @param {Array} attachments - optional attachments
+ *        Each attachment: { name: string, content: Buffer, type?: string }
  */
 const sendEmail = async (to, subject, html, attachments = []) => {
   try {
@@ -18,10 +19,15 @@ const sendEmail = async (to, subject, html, attachments = []) => {
       to,
       subject,
       html,
-      attachments: attachments.map(att => ({
-        name: att.filename,
-        data: att.content.toString("base64"),
-      })),
+      attachments: attachments
+        .filter(att => att.content) // skip undefined
+        .map(att => ({
+          name: att.name,                     // Correct key
+          data: Buffer.isBuffer(att.content)  // Ensure it's a Buffer
+            ? att.content.toString("base64")
+            : att.content,                    // Already base64 string
+          type: att.type || undefined,
+        })),
     });
 
     console.log("Email sent to:", to);
