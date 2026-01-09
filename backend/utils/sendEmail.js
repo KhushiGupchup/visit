@@ -1,18 +1,17 @@
 const { Resend } = require("resend");
-
 const resend = new Resend(process.env.RESEND_API_KEY);
-
 
 const sendEmail = async (to, subject, html, attachments = []) => {
   try {
     const filteredAttachments = attachments
-      .filter(att => att.content)
+      .filter(att => att.content) // remove attachments without content
       .map(att => ({
         name: att.name,
         type: att.type || undefined,
-        data: Buffer.isBuffer(att.content)
-          ? att.content.toString("base64")
+        content: Buffer.isBuffer(att.content)
+          ? att.content.toString("base64") // convert Buffer to base64
           : att.content, // already base64
+        cid: att.cid || undefined, // optional, for inline images
       }));
 
     await resend.emails.send({
@@ -20,7 +19,7 @@ const sendEmail = async (to, subject, html, attachments = []) => {
       to,
       subject,
       html,
-      attachments: filteredAttachments,
+      attachments: filteredAttachments, // must use 'content'
     });
 
     console.log("Email sent to:", to);
