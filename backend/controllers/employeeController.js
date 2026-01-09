@@ -89,20 +89,28 @@ exports.scheduleVisitor = async (req, res) => {
     const host = await User.findOne({ empId: req.user.empId });
 
     // Generate QR code
-    const qrData = await generateQRBase64(JSON.stringify({ visitorId: visitor._id }));
-    const qrBuffer = Buffer.from(qrData.split(",")[1], "base64");
+   // Generate QR code
+const qrData = await generateQRBase64(JSON.stringify({ visitorId: visitor._id }));
+const qrBuffer = Buffer.from(qrData.split(",")[1], "base64");
 
-    // Generate PDF in-memory (returns Buffer)
-    const pdfBuffer = await generatePDF({ ...visitor._doc, hostName: host?.name }, qrData);
+// Generate PDF in-memory (returns Buffer)
+const pdfBuffer = await generatePDF({
+  visitor: { ...visitor._doc, hostName: host?.name },
+  qrBase64: qrData
+});
 
-    // Generate PNG visitor pass in-memory
-    const passImageBuffer = await generateVisitorPassImage({ ...visitor._doc, hostName: host?.name });
+// Generate PNG visitor pass in-memory
+const passImageBuffer = await generateVisitorPassImage({
+  ...visitor._doc,
+  hostName: host?.name
+});
 
-    // Update visitor with QR only (PDF & PNG kept in memory)
-    visitor.qrData = qrData;
-    visitor.passPdf = null;
-    visitor.passImage = null;
-    await visitor.save();
+// Update visitor with QR only (PDF & PNG kept in memory)
+visitor.qrData = qrData;
+visitor.passPdf = null;
+visitor.passImage = null;
+await visitor.save();
+
 
     // Send email if email exists
  if (email) {
@@ -416,6 +424,7 @@ exports.rejectVisitor = async (req, res) => {
 //     res.status(500).json({ msg: "Server Error" });
 //   }
 // };
+
 
 
 
