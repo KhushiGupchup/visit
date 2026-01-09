@@ -64,7 +64,6 @@ exports.dashboard = async (req, res) => {
 exports.scheduleVisitor = async (req, res) => {
   try {
     const { name, email, phone, purpose, scheduledAt } = req.body;
-
     const dateObj = new Date(scheduledAt);
 
     // Determine slot
@@ -83,32 +82,30 @@ exports.scheduleVisitor = async (req, res) => {
       hostEmpId: Number(req.user.empId),
       scheduledAt: dateObj,
       status: "approved",
-      slot
+      slot,
     });
 
     // Get host info
     const host = await User.findOne({ empId: req.user.empId });
 
-    // Generate QR
+    // Generate QR code
     const qrData = await generateQRBase64(JSON.stringify({ visitorId: visitor._id }));
+    const qrBuffer = Buffer.from(qrData.split(",")[1], "base64");
 
-    // Generate PDF
-    const pdfDir = path.join(__dirname, "../uploads/pdfPass");
-    if (!fs.existsSync(pdfDir)) fs.mkdirSync(pdfDir, { recursive: true });
-    const pdfPath = path.join(pdfDir, `${visitor._id}.pdf`);
-    await generatePDF({ ...visitor._doc, hostName: host?.name }, qrData, pdfPath);
+    // Generate PDF buffer
+    const pdfBuffer = await generatePDF({ ...visitor._doc, hostName: host?.name }, qrData);
 
-    // Generate PNG pass
-    const passImage = await generateVisitorPassImage({ ...visitor._doc, hostName: host?.name });
+    // Generate PNG pass buffer
+    const passImageBuffer = await generateVisitorPassImage({ ...visitor._doc, hostName: host?.name });
 
-    // Update visitor
+    // Update visitor in DB (optional, store QR only)
     visitor.qrData = qrData;
-    visitor.passPdf = pdfPath;
+    visitor.passPdf = null;  // now in memory
+    visitor.passImage = null; // now in memory
     await visitor.save();
 
     // Send email
     if (email) {
-      const qrBuffer = Buffer.from(qrData.split(",")[1], "base64");
       const emailHTML = `
         <div style="max-width:400px;margin:0 auto;font-family:sans-serif;border:1px solid #e0e0e0;border-radius:12px;overflow:hidden;">
           <div style="background:#3b82f6;color:white;text-align:center;padding:16px;font-size:20px;font-weight:bold;">
@@ -124,8 +121,8 @@ exports.scheduleVisitor = async (req, res) => {
       `;
 
       await sendEmail(email, "Your VPMS Visitor Pass", emailHTML, [
-        { filename: "VisitorPass.png", content: passImage, cid: "visitor_pass" },
-        { filename: "VisitorPass.pdf", path: pdfPath },
+        { filename: "VisitorPass.png", content: passImageBuffer, cid: "visitor_pass" },
+        { filename: "VisitorPass.pdf", content: pdfBuffer },
         { filename: "VisitorQR.png", content: qrBuffer, cid: "visitor_qr" },
       ]);
     }
@@ -133,7 +130,7 @@ exports.scheduleVisitor = async (req, res) => {
     res.json({ msg: "Visitor scheduled successfully!", visitor });
 
   } catch (err) {
-    console.error(err);
+    console.error("Schedule Visitor Error:", err);
     res.status(500).json({ msg: "Error scheduling visitor", error: err.message });
   }
 };
@@ -400,6 +397,7 @@ exports.rejectVisitor = async (req, res) => {
 //     res.status(500).json({ msg: "Server Error" });
 //   }
 // };
+
 
 
 
