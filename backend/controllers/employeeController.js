@@ -88,70 +88,63 @@ exports.scheduleVisitor = async (req, res) => {
     // Get host info
     const host = await User.findOne({ empId: req.user.empId });
 
-    // Generate QR code
-   // Generate QR code
-const qrData = await generateQRBase64(JSON.stringify({ visitorId: visitor._id }));
-const qrBuffer = Buffer.from(qrData.split(",")[1], "base64");
+    // --- Generate QR code ---
+    const qrData = await generateQRBase64(JSON.stringify({ visitorId: visitor._id }));
+    const qrBuffer = Buffer.from(qrData.split(",")[1], "base64");
 
-// Generate PDF in-memory (returns Buffer)
-const pdfBuffer = await generatePDF({
-  visitor: { ...visitor._doc, hostName: host?.name },
-  qrBase64: qrData
-});
+    // --- Generate PDF in-memory ---
+    const pdfBuffer = await generatePDF(
+      { ...visitor._doc, hostName: host?.name },
+      qrData
+    );
 
-// Generate PNG visitor pass in-memory
-const passImageBuffer = await generateVisitorPassImage({
-  ...visitor._doc,
-  hostName: host?.name
-});
+    // --- Generate PNG visitor pass in-memory ---
+    const passImageBuffer = await generateVisitorPassImage({
+      ...visitor._doc,
+      hostName: host?.name
+    });
 
-// Update visitor with QR only (PDF & PNG kept in memory)
-visitor.qrData = qrData;
-visitor.passPdf = null;
-visitor.passImage = null;
-await visitor.save();
+    // Update visitor with QR only (PDF & PNG kept in memory)
+    visitor.qrData = qrData;
+    visitor.passPdf = null;
+    visitor.passImage = null;
+    await visitor.save();
 
+    // --- Send email if email exists ---
+    if (email) {
+      const emailHTML = `
+        <div style="max-width:400px;margin:0 auto;font-family:sans-serif;border:1px solid #e0e0e0;border-radius:12px;overflow:hidden;">
+          <div style="background:#3b82f6;color:white;text-align:center;padding:16px;font-size:20px;font-weight:bold;">
+            VPMS Visitor Pass
+          </div>
+          <div style="padding:16px;text-align:center;">
+            <img src="cid:visitor_pass" 
+                 alt="Visitor Pass" style="width:300px;height:auto;" />
+          </div>
+          <div style="background:#10b981;color:white;text-align:center;padding:12px;font-size:20px;font-weight:bold">
+            Please show this pass at the entrance.
+          </div>
+        </div>
+      `;
 
-    // Send email if email exists
- if (email) {
-  const emailHTML = `
-    <div style="max-width:400px;margin:0 auto;font-family:sans-serif;border:1px solid #e0e0e0;border-radius:12px;overflow:hidden;">
-      <div style="background:#3b82f6;color:white;text-align:center;padding:16px;font-size:20px;font-weight:bold;">
-        VPMS Visitor Pass
-      </div>
-      <div style="padding:16px;text-align:center;">
-        <img src="data:image/png;base64,${passImageBuffer.toString("base64")}" 
-             alt="Visitor Pass" style="width:300px;height:auto;" />
-      </div>
-      <div style="background:#10b981;color:white;text-align:center;padding:12px;font-size:20px;font-weight:bold">
-        Please show this pass at the entrance.
-      </div>
-    </div>
-  `;
-
-  await sendEmail(email, "Your VPMS Visitor Pass", emailHTML, [
-  {
-    name: "VisitorPass.pdf",
-    content: pdfBuffer, // must be Buffer
-    type: "application/pdf",
-  },
-  {
-    name: "VisitorPass.png",
-    content: passImageBuffer, // must be Buffer
-    type: "image/png",
-  },
-  {
-    name: "VisitorQR.png",
-    content: qrBuffer, // must be Buffer
-    type: "image/png",
-  },
-]);
-
-}
-
-
-
-
+      await sendEmail(email, "Your VPMS Visitor Pass", emailHTML, [
+        {
+          filename: "VisitorPass.pdf",
+          content: pdfBuffer, // must be Buffer
+          type: "application/pdf",
+        },
+        {
+          filename: "VisitorPass.png",
+          content: passImageBuffer, // must be Buffer
+          cid: "visitor_pass"
+        },
+        {
+          filename: "VisitorQR.png",
+          content: qrBuffer, // must be Buffer
+          type: "image/png"
+        },
+      ]);
+    }
 
     res.json({ msg: "Visitor scheduled successfully!", visitor });
 
@@ -160,6 +153,7 @@ await visitor.save();
     res.status(500).json({ msg: "Error scheduling visitor", error: err.message });
   }
 };
+
 
 // ===== Approve Visitor =====
 exports.approveVisitor = async (req, res) => {
@@ -424,6 +418,7 @@ exports.rejectVisitor = async (req, res) => {
 //     res.status(500).json({ msg: "Server Error" });
 //   }
 // };
+
 
 
 
