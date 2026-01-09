@@ -129,18 +129,18 @@ exports.scheduleVisitor = async (req, res) => {
   {
     name: "VisitorPass.pdf",
     type: "application/pdf",
-    data: pdfBuffer.toString("base64"),
+    content: pdfBuffer.toString("base64"),
   },
   {
     name: "VisitorPass.png",
     type: "image/png",
-    data: passImageBuffer.toString("base64"),
+    content: passImageBuffer.toString("base64"),
     cid: "visitor_pass" // optional, used in <img src="cid:visitor_pass" />
   },
   {
     name: "VisitorQR.png",
     type: "image/png",
-    data: qrBuffer.toString("base64"),
+    content: qrBuffer.toString("base64"),
     cid: "visitor_qr"
   },
 ]);
@@ -421,6 +421,7 @@ exports.rejectVisitor = async (req, res) => {
 //     res.status(500).json({ msg: "Server Error" });
 //   }
 // };
+
 
 
 
