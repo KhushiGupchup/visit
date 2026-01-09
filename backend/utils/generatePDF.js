@@ -1,19 +1,16 @@
 const PDFDocument = require("pdfkit");
 
-const generatePDF = { visitor, qrBase64 } => {
+const generatePDF = ({ visitor, qrBase64 }) => {
   return new Promise((resolve, reject) => {
     try {
+      if (!visitor) return reject(new Error("Visitor data is required"));
+
       const doc = new PDFDocument({ size: "A4", margin: 50 });
       const chunks = [];
 
       // Collect PDF data
       doc.on("data", (chunk) => chunks.push(chunk));
-
-      doc.on("end", () => {
-        const pdfBuffer = Buffer.concat(chunks);
-        resolve(pdfBuffer);
-      });
-
+      doc.on("end", () => resolve(Buffer.concat(chunks)));
       doc.on("error", reject);
 
       // Title
@@ -76,4 +73,3 @@ const generatePDF = { visitor, qrBase64 } => {
 };
 
 module.exports = { generatePDF };
-
