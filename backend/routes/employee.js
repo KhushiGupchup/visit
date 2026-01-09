@@ -8,7 +8,7 @@ const {
   approveVisitor,
   deleteVisitor,
   rejectVisitor,
-  addVisitorByEmployee
+  
 } = require("../controllers/employeeController");
 const authMiddleware = require("../middleware/authMiddleware");
 const roleMiddleware = require("../middleware/roleMiddleware");
@@ -39,3 +39,4 @@ router.delete("/delete-visitor/:visitorId", deleteVisitor);
 router.patch("/reject-visitor/:visitorId", rejectVisitor);
 
 module.exports = router;
+
