@@ -1,28 +1,32 @@
-const nodemailer = require("nodemailer");
+// resendEmail.js
+const { Resend } = require("resend");
 
+// Initialize Resend with API key from env
+const resend = new Resend(process.env.RESEND_API_KEY);
+
+/**
+ * Send an email via Resend
+ * @param {string} to - recipient email
+ * @param {string} subject - email subject
+ * @param {string} html - HTML content
+ * @param {Array} attachments - optional attachments
+ */
 const sendEmail = async (to, subject, html, attachments = []) => {
   try {
-    const transporter = nodemailer.createTransport({
-      host: process.env.EMAIL_HOST,
-      port: 587,
-      secure: false,
-      auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS,
-      },
-    });
-
-    await transporter.sendMail({
-      from: process.env.FROM_EMAIL,
+    await resend.emails.send({
+      from: "My App <onboarding@resend.dev>", // sender
       to,
       subject,
       html,
-      attachments, // <-- attachments array added
+      attachments: attachments.map(att => ({
+        name: att.filename,
+        data: att.content.toString("base64"),
+      })),
     });
 
     console.log("Email sent to:", to);
   } catch (error) {
-    console.log("Email Error from ....:", error.message);
+    console.log("Email Error from Resend:", error.message);
   }
 };
 
