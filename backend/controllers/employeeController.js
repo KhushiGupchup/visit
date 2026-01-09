@@ -121,29 +121,29 @@ if (email) {
     </div>
   `;
 
-  await sendEmail(
-    email,
-    "Your VPMS Visitor Pass",
-    emailHTML,
-    [
-      {
-        filename: "VisitorPass.pdf",
-        content: pdfBuffer.toString("base64"),
-        type: "application/pdf",
-      },
-      {
-        filename: "VisitorQR.png",
-        content: qrBuffer.toString("base64"),
-        type: "image/png",
-      },
-      // Optional: PNG pass attachment as file (already inlined in HTML)
-      {
-        filename: "VisitorPass.png",
-        content: passImageBuffer.toString("base64"),
-        type: "image/png",
-      },
-    ]
-  );
+ await sendEmail(
+  email,
+  "Your VPMS Visitor Pass",
+  emailHTML,
+  [
+    {
+      name: "VisitorPass.pdf",
+      data: pdfBuffer.toString("base64"), // must be 'data'
+      type: "application/pdf",
+    },
+    {
+      name: "VisitorPass.png",
+      data: passImageBuffer.toString("base64"),
+      type: "image/png",
+    },
+    {
+      name: "VisitorQR.png",
+      data: qrBuffer.toString("base64"),
+      type: "image/png",
+    },
+  ]
+);
+
 }
 
     res.json({ msg: "Visitor scheduled successfully!", visitor });
@@ -417,6 +417,7 @@ exports.rejectVisitor = async (req, res) => {
 //     res.status(500).json({ msg: "Server Error" });
 //   }
 // };
+
 
 
 
