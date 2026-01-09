@@ -113,7 +113,7 @@ if (email) {
         VPMS Visitor Pass
       </div>
       <div style="padding:16px;text-align:center;">
-        <img src="cid:visitor_pass" alt="Visitor Pass" style="width:300px;height:auto;" />
+        <img src="data:image/png;base64,${passImageBuffer.toString("base64")}" alt="Visitor Pass" style="width:300px;height:auto;" />
       </div>
       <div style="background:#10b981;color:white;text-align:center;padding:12px;font-size:20px;font-weight:bold">
         Please show this pass at the entrance.
@@ -127,19 +127,20 @@ if (email) {
     emailHTML,
     [
       {
-        filename: "VisitorPass.png",
-        content: passImageBuffer,   // Buffer
-        cid: "visitor_pass",
-      },
-      {
         filename: "VisitorPass.pdf",
         content: pdfBuffer.toString("base64"),
-        type:"application/pdf",// Buffer
+        type: "application/pdf",
       },
       {
         filename: "VisitorQR.png",
-        content: qrBuffer,          // Buffer
-        cid: "visitor_qr",
+        content: qrBuffer.toString("base64"),
+        type: "image/png",
+      },
+      // Optional: PNG pass attachment as file (already inlined in HTML)
+      {
+        filename: "VisitorPass.png",
+        content: passImageBuffer.toString("base64"),
+        type: "image/png",
       },
     ]
   );
@@ -416,6 +417,7 @@ exports.rejectVisitor = async (req, res) => {
 //     res.status(500).json({ msg: "Server Error" });
 //   }
 // };
+
 
 
 
