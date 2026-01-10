@@ -1,32 +1,30 @@
 const { Resend } = require("resend");
+
 const resend = new Resend(process.env.RESEND_API_KEY);
 
 const sendEmail = async (to, subject, html, attachments = []) => {
   try {
-    const filteredAttachments = attachments
+    const formattedAttachments = attachments
       .filter(att => att.content)
-      .map(att => {
-        // If Buffer, convert to base64; if string, assume already base64
-        const isBuffer = Buffer.isBuffer(att.content);
-        return {
-          name: att.name,
-          type: att.type || undefined,
-          content: isBuffer ? att.content.toString("base64") : att.content,
-          cid: att.cid || undefined,
-        };
-      });
+      .map(att => ({
+        filename: att.filename,
+        content: Buffer.isBuffer(att.content)
+          ? att.content.toString("base64")
+          : att.content,
+      }));
 
     await resend.emails.send({
       from: "Visitor Pass <onboarding@resend.dev>",
       to,
       subject,
       html,
-      attachments: filteredAttachments,
+      attachments: formattedAttachments,
     });
 
-    console.log("Email sent to:", to);
+    console.log("Email sent successfully to:", to);
   } catch (err) {
-    console.log("Email Error from Resend:", err.message);
+    console.error("Resend Email Error:", err);
+    throw err;
   }
 };
 
