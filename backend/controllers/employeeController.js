@@ -160,12 +160,14 @@ exports.scheduleVisitor = async (req, res) => {
 exports.approveVisitor = async (req, res) => {
   try {
     const { visitorId } = req.params;
+
     const visitor = await Visitor.findById(visitorId);
     if (!visitor) return res.status(404).json({ msg: "Visitor not found" });
 
     const host = await User.findOne({ empId: visitor.hostEmpId });
     const alreadyApproved = visitor.status === "approved";
 
+    // Approve visitor
     visitor.status = "approved";
 
     // Generate QR if missing
@@ -174,35 +176,41 @@ exports.approveVisitor = async (req, res) => {
     }
     const qrBuffer = Buffer.from(visitor.qrData.split(",")[1], "base64");
 
-    // Generate PDF & PNG in-memory
+    // Generate PDF & Visitor Pass PNG
     const pdfBuffer = await generatePDF({ ...visitor._doc, hostName: host?.name }, visitor.qrData);
     const passImageBuffer = await generateVisitorPassImage({ ...visitor._doc, hostName: host?.name });
 
+    // Optionally clear old attachments from DB
     visitor.passPdf = null;
     visitor.passImage = null;
     await visitor.save();
 
-    // --- Send email if email exists ---
+    // Send email if email exists
     if (visitor.email) {
-      const passBase64 = passImageBuffer.toString("base64");
-
       const emailHTML = `
-        <div style="max-width:400px;margin:0 auto;font-family:sans-serif;border:1px solid #e0e0e0;border-radius:12px;overflow:hidden;">
-          <div style="background:#3b82f6;color:white;text-align:center;padding:16px;font-size:20px;font-weight:bold;">
+        <div style="max-width:420px;margin:auto;font-family:sans-serif;border:1px solid #ddd;border-radius:10px">
+          <div style="background:#2563eb;color:white;padding:14px;text-align:center;font-size:20px;font-weight:bold">
             VPMS Visitor Pass
           </div>
-          <div style="padding:16px;text-align:center;">
-            <img src="data:image/png;base64,${passBase64}" alt="Visitor Pass" style="width:300px;height:auto;" />
+
+          <div style="padding:16px;text-align:center">
+            <img src="cid:visitor_pass" width="380" />
           </div>
-          <div style="background:#10b981;color:white;text-align:center;padding:12px;font-size:20px;font-weight:bold">
-            Please show this pass at the entrance.
+
+          <div style="text-align:center;padding-bottom:16px">
+            <img src="cid:visitor_qr" width="150" />
+          </div>
+
+          <div style="background:#16a34a;color:white;text-align:center;padding:12px;font-weight:bold">
+            Show this pass at the entrance
           </div>
         </div>
       `;
 
       await sendEmail(visitor.email, "Your VPMS Visitor Pass", emailHTML, [
-        { name: "VisitorPass.pdf", type: "application/pdf", content: pdfBuffer },
-        { name: "VisitorQR.png", type: "image/png", content: qrBuffer },
+        { filename: "VisitorPass.pdf", content: pdfBuffer },
+        { filename: "VisitorPass.png", content: passImageBuffer, cid: "visitor_pass" },
+        { filename: "VisitorQR.png", content: qrBuffer, cid: "visitor_qr" },
       ]);
     }
 
@@ -210,7 +218,6 @@ exports.approveVisitor = async (req, res) => {
       msg: alreadyApproved ? "Visitor is already approved" : "Visitor approved successfully",
       visitor,
     });
-
   } catch (err) {
     console.error("Approve Visitor Error:", err);
     res.status(500).json({ msg: "Server error", error: err.message });
@@ -421,6 +428,7 @@ exports.rejectVisitor = async (req, res) => {
 //     res.status(500).json({ msg: "Server Error" });
 //   }
 // };
+
 
 
 
