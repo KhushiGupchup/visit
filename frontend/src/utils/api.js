@@ -2,7 +2,7 @@ import axios from "axios";
 
 // Axios instance for backend API
 const api = axios.create({
-  baseURL: "https://overflowing-amazement-production.up.railway.app/api", // backend api
+  baseURL: "https://overflowing-amazement-production.up.railway.app/api", // deployed backend
 });
 
 // Add JWT token to every request if available
@@ -15,7 +15,3 @@ api.interceptors.request.use((config) => {
 });
 
 export default api;
-
-
-
-
