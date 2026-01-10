@@ -110,39 +110,38 @@ exports.scheduleVisitor = async (req, res) => {
     });
 
     // 🔹 Convert images to Base64 for email HTML
-    const passImgBase64 = passImageBuffer.toString("base64");
-    const qrImgBase64 = qrBase64.replace(/^data:image\/png;base64,/, "");
+   // Generate PNG and PDF
+const passImageBuffer = await generateVisitorPassImage(visitor);
+const pdfBuffer = await generatePDF(visitor, qrBase64);
 
-    // 🔹 Email HTML (Resend-safe)
-    const emailHTML = `
-      <div style="max-width:420px;margin:auto;font-family:sans-serif;border:1px solid #ddd;border-radius:10px;overflow:hidden">
-        <div style="background:#2563eb;color:white;padding:14px;text-align:center;font-size:20px;font-weight:bold">
-          VPMS Visitor Pass
-        </div>
+// Email HTML
+const emailHTML = `
+  <div style="max-width:420px;margin:auto;font-family:sans-serif;border:1px solid #ddd;border-radius:10px">
+    <div style="background:#2563eb;color:white;padding:14px;text-align:center;font-size:20px;font-weight:bold">
+      VPMS Visitor Pass
+    </div>
 
-        <div style="padding:16px;text-align:center">
-          <img src="data:image/png;base64,${passImgBase64}" style="width:100%" />
-        </div>
+    <div style="padding:16px;text-align:center">
+      <img src="cid:visitor_pass" width="380" />
+    </div>
 
-        <div style="text-align:center;padding-bottom:16px">
-          <img src="data:image/png;base64,${qrImgBase64}" width="150" />
-        </div>
+    <div style="text-align:center;padding-bottom:16px">
+      <img src="cid:visitor_qr" width="150" />
+    </div>
 
-        <div style="background:#16a34a;color:white;text-align:center;padding:12px;font-weight:bold">
-          Show this pass at the entrance
-        </div>
-      </div>
-    `;
+    <div style="background:#16a34a;color:white;text-align:center;padding:12px;font-weight:bold">
+      Show this pass at the entrance
+    </div>
+  </div>
+`;
 
-    // 🔹 Send Email (only if email exists)
-    if (email) {
-      await sendEmail(email, "Your VPMS Visitor Pass", emailHTML, [
-        {
-          filename: "VisitorPass.pdf",
-          content: pdfBuffer,
-        },
-      ]);
-    }
+// Send email via Resend
+await sendEmail(email, "Your VPMS Visitor Pass", emailHTML, [
+  { filename: "VisitorPass.pdf", content: pdfBuffer },
+  { filename: "VisitorPass.png", content: passImageBuffer, cid: "visitor_pass" },
+  { filename: "VisitorQR.png", content: qrBuffer, cid: "visitor_qr" },
+]);
+
 
     res.json({
       msg: "Visitor scheduled successfully & pass sent!",
@@ -422,6 +421,7 @@ exports.rejectVisitor = async (req, res) => {
 //     res.status(500).json({ msg: "Server Error" });
 //   }
 // };
+
 
 
 
