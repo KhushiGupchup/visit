@@ -5,6 +5,8 @@ import api from "../utils/api.js";
 import QRCodeGenerator from "../components/QRCodeGenerator.jsx";
 import { AuthContext } from "../context/AuthContext.jsx";
 import Topbar from "./Topbar.jsx";
+import emailjs from "emailjs-com";
+import QRCode from "qrcode";
 
 export default function ScheduleVisitor() {
   const { user } = useContext(AuthContext);
@@ -29,32 +31,53 @@ export default function ScheduleVisitor() {
   }, [user, navigate]);
 
   const handleSubmit = async () => {
-    setLoading(true); // start loading
-    const fd = new FormData();
-    Object.keys(form).forEach((k) => fd.append(k, form[k]));
-    if (photo) fd.append("photo", photo);
+  setLoading(true);
 
-    try {
-      const res = await api.post("/employee/schedule-visitor", fd);
-      alert("Visitor scheduled successfully. QR emailed.");
-      setQrData(JSON.stringify(res.data.qrData));
+  try {
+    const formData = new FormData();
+    Object.keys(form).forEach(key => formData.append(key, form[key]));
+    if (photo) formData.append("photo", photo);
 
-      // Clear form & photo
-      setForm({
-        name: "",
-        email: "",
-        phone: "",
-        purpose: "",
-        scheduledAt: "",
-      });
-      setPhoto(null);
-    } catch (err) {
-      alert(err.response?.data?.msg || "Error scheduling visitor");
-    } finally {
-      setLoading(false); // stop loading
-    }
-  };
+    const response = await api.post("/employee/schedule-visitor", formData);
 
+    const qrCodeImage = await QRCode.toDataURL(
+      JSON.stringify(response.data.qrData)
+    );
+
+    setQrData(JSON.stringify(response.data.qrData));
+
+    await emailjs.send(
+  process.env.REACT_APP_EMAILJS_SERVICE_ID,
+  process.env.REACT_APP_EMAILJS_TEMPLATE_ID,
+  {
+    to_name: form.name,
+    to_email: form.email,
+    qr: qrCodeImage,
+    scheduledAt: form.scheduledAt,
+    purpose: form.purpose
+  },
+  process.env.REACT_APP_EMAILJS_PUBLIC_KEY
+);
+
+
+    alert("Visitor scheduled and email sent.");
+
+    setForm({
+      name: "",
+      email: "",
+      phone: "",
+      purpose: "",
+      scheduledAt: ""
+    });
+    setPhoto(null);
+
+  } catch (error) {
+    console.error(error);
+    alert(error.response?.data?.msg || "Error scheduling visitor or sending email");
+  } finally {
+    setLoading(false);
+  }
+};
   return (
     <div className="flex flex-col md:flex-row min-h-screen bg-gray-100">
       {/* Sidebar */}
@@ -141,3 +164,4 @@ export default function ScheduleVisitor() {
     </div>
   );
 }
+
