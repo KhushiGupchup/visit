@@ -34,6 +34,7 @@ export default function ScheduleVisitor() {
     try {
       // 1️⃣ Save visitor via backend
       const res = await api.post("/employee/schedule-visitor", form);
+      console.log(res.data);
       const visitorId = res.data.visitor._id;
 
       // 2️⃣ Generate QR for email (base64)
@@ -158,5 +159,6 @@ export default function ScheduleVisitor() {
     </div>
   );
 }
+
 
 
