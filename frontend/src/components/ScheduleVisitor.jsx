@@ -32,49 +32,63 @@ export default function ScheduleVisitor() {
   setLoading(true);
 
   try {
+    // Prepare form data
     const fd = new FormData();
-    Object.keys(form).forEach((k) => fd.append(k, form[k]));
-    console.log(fd);
+    Object.keys(form).forEach((key) => fd.append(key, form[key]));
     if (photo) fd.append("photo", photo);
 
-    // 1️⃣ Schedule visitor via backend
+    // 1️⃣ Call backend
     const res = await api.post("/employee/schedule-visitor", fd);
+
+    // 2️⃣ Check if QR exists in response
     const qrBase64 = res.data.qrBase64;
-    console.log(res);
-
-    setQrData(qrBase64); // Show preview
-
-    // 2️⃣ Send email via EmailJS
-    try {
-      await emailjs.send(
-        process.env.REACT_APP_EMAILJS_SERVICE_ID,
-        process.env.REACT_APP_EMAILJS_TEMPLATE_ID,
-        {
-          to_name: form.name,
-          to_email: form.email,
-          qr: qrBase64,          // Use backend-generated QR
-          scheduledAt: form.scheduledAt,
-          purpose: form.purpose,
-        },
-        process.env.REACT_APP_EMAILJS_PUBLIC_KEY
-      );
-
-      alert("Visitor scheduled and email sent successfully!");
-    } catch (emailErr) {
-      console.error("EmailJS Error:", emailErr);
-      alert("Visitor saved but email failed: " + (emailErr.text || emailErr.message));
+    if (!qrBase64) {
+      alert("Visitor scheduled, but QR code is missing from backend.");
+      setLoading(false);
+      return;
     }
 
-    // 3️⃣ Clear form & photo
+    // 3️⃣ Show QR preview
+    setQrData(qrBase64);
+
+    // 4️⃣ Send Email via EmailJS (optional)
+    if (form.email) {
+      try {
+        await emailjs.send(
+          process.env.REACT_APP_EMAILJS_SERVICE_ID,
+          process.env.REACT_APP_EMAILJS_TEMPLATE_ID,
+          {
+            to_name: form.name,
+            to_email: form.email,
+            qr: qrBase64,
+            scheduledAt: form.scheduledAt,
+            purpose: form.purpose,
+          },
+          process.env.REACT_APP_EMAILJS_PUBLIC_KEY
+        );
+        alert("Visitor scheduled and email sent successfully!");
+      } catch (emailErr) {
+        console.error("EmailJS Error:", emailErr);
+        alert(
+          "Visitor saved but email failed: " +
+            (emailErr.text || emailErr.message || JSON.stringify(emailErr))
+        );
+      }
+    } else {
+      alert("Visitor scheduled successfully. No email sent.");
+    }
+
+    // 5️⃣ Clear form & photo
     setForm({ name: "", email: "", phone: "", purpose: "", scheduledAt: "" });
     setPhoto(null);
   } catch (err) {
-    console.error("Backend Error:", err.response || err);
+    console.error("Error scheduling visitor:", err);
     alert(err.response?.data?.msg || "Error scheduling visitor");
   } finally {
     setLoading(false);
   }
 };
+
 
   return (
     <div className="flex flex-col md:flex-row min-h-screen bg-gray-100">
@@ -153,6 +167,7 @@ export default function ScheduleVisitor() {
     </div>
   );
 }
+
 
 
 
