@@ -35,9 +35,10 @@ export default function ScheduleVisitor() {
   try {
     // 1️⃣ Save visitor via backend
     const res = await api.post("/employee/schedule-visitor", form);
+    const visitorId = res.data.visitor._id; // use visitor ID for QR
 
-    // 2️⃣ Generate QR from backend data (small size!)
-    const qrBase64 = await QRCode.toDataURL(res.data.qrBase64, { width: 150 });
+    // 2️⃣ Generate small QR from visitor ID
+    const qrBase64 = await QRCode.toDataURL(visitorId, { width: 150 });
 
     // 3️⃣ Send email via EmailJS
     try {
@@ -47,9 +48,9 @@ export default function ScheduleVisitor() {
         {
           to_name: form.name,
           to_email: form.email,
-          qr: qrBase64,
+          qr: qrBase64, // must start with "data:image/png;base64,"
           scheduledAt: form.scheduledAt,
-          purpose: form.purpose
+          purpose: form.purpose,
         },
         process.env.REACT_APP_EMAILJS_PUBLIC_KEY
       );
@@ -59,16 +60,22 @@ export default function ScheduleVisitor() {
 
     } catch (emailErr) {
       console.error("EmailJS Error:", emailErr);
-      alert("Visitor saved but email failed: " + (emailErr.text || emailErr.message));
+      alert(
+        "Visitor saved but email failed: " +
+          (emailErr.text || emailErr.message || JSON.stringify(emailErr))
+      );
     }
 
   } catch (err) {
     console.error("Backend Error:", err);
-    alert("Error scheduling visitor: " + (err.response?.data?.msg || err.message));
+    alert(
+      "Error scheduling visitor: " + (err.response?.data?.msg || err.message)
+    );
   } finally {
     setLoading(false);
   }
 };
+
   return (
     <div className="flex flex-col md:flex-row min-h-screen bg-gray-100">
       {/* Sidebar */}
@@ -155,5 +162,6 @@ export default function ScheduleVisitor() {
     </div>
   );
 }
+
 
 
