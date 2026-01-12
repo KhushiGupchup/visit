@@ -110,37 +110,27 @@ exports.scheduleVisitor = async (req, res) => {
     });
 
     // 🔹 Email HTML using CID references
-    const emailHTML = `
-      <div style="max-width:420px;margin:auto;font-family:sans-serif;border:1px solid #ddd;border-radius:10px">
-        <div style="background:#2563eb;color:white;padding:14px;text-align:center;font-size:20px;font-weight:bold">
-          VPMS Visitor Pass
-        </div>
+const emailHTML = `
+  <div style="max-width:420px;margin:auto;font-family:sans-serif;border:1px solid #ddd;border-radius:10px">
+    <div style="background:#2563eb;color:white;padding:14px;text-align:center;font-size:20px;font-weight:bold">
+      VPMS Visitor Pass
+    </div>
 
-        <div style="padding:16px;text-align:center">
-          <img src="cid:visitor_pass" width="380" />
-        </div>
+    <div style="padding:16px;text-align:center">
+      <img src="${qrBase64}" width="150" />
+    </div>
 
-        <div style="text-align:center;padding-bottom:16px">
-          <img src="cid:visitor_qr" width="150" />
-        </div>
+    <div style="background:#16a34a;color:white;text-align:center;padding:12px;font-weight:bold">
+      Show this pass at the entrance
+    </div>
+  </div>
+`;
 
-        <div style="background:#16a34a;color:white;text-align:center;padding:12px;font-weight:bold">
-          Show this pass at the entrance
-        </div>
-      </div>
-    `;
 
     // 🔹 Send Email via Resend
     if (email) {
-      await sendEmail(email, "Your VPMS Visitor Pass", emailHTML, [
-        { filename: "VisitorPass.pdf", content: pdfBuffer },
-        { filename: "VisitorPass.png", content: passImageBuffer, cid: "visitor_pass" },
-        {
-          filename: "VisitorQR.png",
-          content: Buffer.from(qrBase64.replace(/^data:image\/png;base64,/, ""), "base64"),
-          cid: "visitor_qr",
-        },
-      ]);
+     await sendEmail(email, "Your VPMS Visitor Pass", emailHTML);
+
     }
 
     res.json({
@@ -428,6 +418,7 @@ exports.rejectVisitor = async (req, res) => {
 //     res.status(500).json({ msg: "Server Error" });
 //   }
 // };
+
 
 
 
