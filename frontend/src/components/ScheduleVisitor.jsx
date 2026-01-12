@@ -41,8 +41,7 @@ export default function ScheduleVisitor() {
       setQrData(qrBase64);                // Show preview
 
 
-      // 3️⃣ Update state for frontend QR preview
-      setQrData(visitorId); // <-- raw string for react-qr-code
+
 
       // 4️⃣ Send email via EmailJS
       try {
@@ -159,4 +158,5 @@ export default function ScheduleVisitor() {
     </div>
   );
 }
+
 
