@@ -37,7 +37,9 @@ export default function ScheduleVisitor() {
       const visitorId = res.data.visitor._id;
 
       // 2️⃣ Generate QR for email (base64)
-      const qrBase64 = await QRCode.toDataURL(visitorId, { width: 150 });
+     const qrBase64 = res.data.qrBase64;  // Use backend QR
+      setQrData(qrBase64);                // Show preview
+
 
       // 3️⃣ Update state for frontend QR preview
       setQrData(visitorId); // <-- raw string for react-qr-code
@@ -45,17 +47,18 @@ export default function ScheduleVisitor() {
       // 4️⃣ Send email via EmailJS
       try {
         await emailjs.send(
-          process.env.REACT_APP_EMAILJS_SERVICE_ID,
-          process.env.REACT_APP_EMAILJS_TEMPLATE_ID,
-          {
-            to_name: form.name,
-            to_email: form.email,
-            qr: qrBase64,             // data:image/png;base64,... for email
-            scheduledAt: form.scheduledAt,
-            purpose: form.purpose,
-          },
-          process.env.REACT_APP_EMAILJS_PUBLIC_KEY
-        );
+  process.env.REACT_APP_EMAILJS_SERVICE_ID,
+  process.env.REACT_APP_EMAILJS_TEMPLATE_ID,
+  {
+    to_name: form.name,
+    to_email: form.email,
+    qr: qrBase64,       // backend QR
+    scheduledAt: form.scheduledAt,
+    purpose: form.purpose,
+  },
+  process.env.REACT_APP_EMAILJS_PUBLIC_KEY
+);
+
 
         alert("Visitor scheduled and email sent successfully!");
 
@@ -156,3 +159,4 @@ export default function ScheduleVisitor() {
     </div>
   );
 }
+
