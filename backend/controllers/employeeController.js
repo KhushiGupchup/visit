@@ -98,7 +98,7 @@ exports.scheduleVisitor = async (req, res) => {
       JSON.stringify({ visitorId: visitor._id })
     );
 
-    // 🔹 Generate PDF & Visitor Pass PNG
+    // 🔹 Generate PDF & Visitor Pass PNG (optional: send to frontend if needed)
     const pdfBuffer = await generatePDF(
       { ...visitor._doc, hostName: host?.name },
       qrBase64
@@ -109,33 +109,16 @@ exports.scheduleVisitor = async (req, res) => {
       hostName: host?.name,
     });
 
-    // 🔹 Email HTML using CID references
-const emailHTML = `
-  <div style="max-width:420px;margin:auto;font-family:sans-serif;border:1px solid #ddd;border-radius:10px">
-    <div style="background:#2563eb;color:white;padding:14px;text-align:center;font-size:20px;font-weight:bold">
-      VPMS Visitor Pass
-    </div>
+    // 🔹 Remove email sending
+    // Email will now be handled on the frontend via EmailJS
 
-    <div style="padding:16px;text-align:center">
-      <img src="${qrBase64}" width="150" />
-    </div>
-
-    <div style="background:#16a34a;color:white;text-align:center;padding:12px;font-weight:bold">
-      Show this pass at the entrance
-    </div>
-  </div>
-`;
-
-
-    // 🔹 Send Email via Resend
-    if (email) {
-     await sendEmail(email, "Your VPMS Visitor Pass", emailHTML);
-
-    }
-
+    // 🔹 Respond to frontend with all necessary data
     res.json({
-      msg: "Visitor scheduled successfully & pass sent!",
+      msg: "Visitor scheduled successfully!",
       visitor,
+      qrBase64,          // Send QR code to frontend
+      pdfBuffer: pdfBuffer.toString("base64"), // Optional: send PDF as base64 if needed
+      passImageBuffer: passImageBuffer.toString("base64"), // Optional: send image as base64
     });
   } catch (err) {
     console.error("Schedule Visitor Error:", err);
@@ -145,6 +128,7 @@ const emailHTML = `
     });
   }
 };
+
 
 // ===== Approve Visitor =====
 exports.approveVisitor = async (req, res) => {
@@ -418,6 +402,7 @@ exports.rejectVisitor = async (req, res) => {
 //     res.status(500).json({ msg: "Server Error" });
 //   }
 // };
+
 
 
 
