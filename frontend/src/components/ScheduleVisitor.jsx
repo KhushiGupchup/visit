@@ -5,8 +5,8 @@ import api from "../utils/api.js";
 import QRCodeGenerator from "../components/QRCodeGenerator.jsx";
 import { AuthContext } from "../context/AuthContext.jsx";
 import Topbar from "./Topbar.jsx";
-import emailjs from "emailjs-com";
-import QRCode from "qrcode";
+import emailjs from '@emailjs/browser';
+import QRCode from 'qrcode';
 
 export default function ScheduleVisitor() {
   const { user } = useContext(AuthContext);
@@ -30,50 +30,41 @@ export default function ScheduleVisitor() {
     }
   }, [user, navigate]);
 
-  const handleSubmit = async () => {
+ const handleSubmit = async () => {
   setLoading(true);
-
   try {
-    const formData = new FormData();
-    Object.keys(form).forEach(key => formData.append(key, form[key]));
-    if (photo) formData.append("photo", photo);
+    // 1️⃣ Save visitor via backend
+    const res = await api.post("/employee/schedule-visitor", form);
 
-    const response = await api.post("/employee/schedule-visitor", formData);
+    // 2️⃣ Generate QR from backend data (small size!)
+    const qrBase64 = await QRCode.toDataURL(res.data.qrBase64, { width: 150 });
 
-    const qrCodeImage = await QRCode.toDataURL(
-      JSON.stringify(response.data.qrData)
-    );
+    // 3️⃣ Send email via EmailJS
+    try {
+      await emailjs.send(
+        process.env.REACT_APP_EMAILJS_SERVICE_ID,
+        process.env.REACT_APP_EMAILJS_TEMPLATE_ID,
+        {
+          to_name: form.name,
+          to_email: form.email,
+          qr: qrBase64,
+          scheduledAt: form.scheduledAt,
+          purpose: form.purpose
+        },
+        process.env.REACT_APP_EMAILJS_PUBLIC_KEY
+      );
 
-    setQrData(JSON.stringify(response.data.qrData));
+      alert("Visitor scheduled and email sent successfully!");
+      setForm({ name: "", email: "", phone: "", purpose: "", scheduledAt: "" });
 
-    await emailjs.send(
-  process.env.REACT_APP_EMAILJS_SERVICE_ID,
-  process.env.REACT_APP_EMAILJS_TEMPLATE_ID,
-  {
-    to_name: form.name,
-    to_email: form.email,
-    qr: qrCodeImage,
-    scheduledAt: form.scheduledAt,
-    purpose: form.purpose
-  },
-  process.env.REACT_APP_EMAILJS_PUBLIC_KEY
-);
+    } catch (emailErr) {
+      console.error("EmailJS Error:", emailErr);
+      alert("Visitor saved but email failed: " + (emailErr.text || emailErr.message));
+    }
 
-
-    alert("Visitor scheduled and email sent.");
-
-    setForm({
-      name: "",
-      email: "",
-      phone: "",
-      purpose: "",
-      scheduledAt: ""
-    });
-    setPhoto(null);
-
-  } catch (error) {
-    console.error(error);
-    alert(error.response?.data?.msg || "Error scheduling visitor or sending email");
+  } catch (err) {
+    console.error("Backend Error:", err);
+    alert("Error scheduling visitor: " + (err.response?.data?.msg || err.message));
   } finally {
     setLoading(false);
   }
@@ -164,4 +155,5 @@ export default function ScheduleVisitor() {
     </div>
   );
 }
+
 
