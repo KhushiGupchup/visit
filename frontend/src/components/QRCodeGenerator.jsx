@@ -1,9 +1,8 @@
-import QRCode from "react-qr-code";
-
 export default function QRCodeGenerator({ value }) {
+  if (!value) return null;
   return (
     <div className="bg-white p-4 rounded shadow flex justify-center">
-      <QRCode value={value} size={180} />
+      <img src={value} alt="Visitor QR" width={180} height={180} />
     </div>
   );
 }
