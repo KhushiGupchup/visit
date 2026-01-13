@@ -65,6 +65,7 @@ exports.scheduleVisitor = async (req, res) => {
   try {
     const { name, email, phone, purpose, scheduledAt } = req.body;
 
+    // ✅ Validate required fields
     if (!name || !phone || !scheduledAt) {
       return res.status(400).json({ msg: "Required fields missing" });
     }
@@ -74,14 +75,14 @@ exports.scheduleVisitor = async (req, res) => {
       return res.status(400).json({ msg: "Invalid scheduled date" });
     }
 
-    // 🔹 Slot calculation
+    // ✅ Slot calculation
     let slot = "other";
     const hours = dateObj.getHours();
     if (hours >= 9 && hours < 11) slot = "slot1";
     else if (hours >= 11 && hours < 14) slot = "slot2";
     else if (hours >= 14 && hours < 15) slot = "slot3";
 
-    // 🔹 Create Visitor
+    // ✅ Create Visitor
     const visitor = await Visitor.create({
       name,
       email,
@@ -93,21 +94,10 @@ exports.scheduleVisitor = async (req, res) => {
       slot,
     });
 
-    // 🔹 Generate QR payload (secure)
-    const qrPayload = {
-      visitorId: visitor._id,
-      issuedAt: Date.now(),
-    };
-
-    const qrBase64 = await generateQRBase64(
-      JSON.stringify(qrPayload)
-    );
-
-    // 🔹 Respond (minimal & fast)
+    // ✅ Respond
     res.json({
       msg: "Visitor scheduled successfully!",
-      visitorId: visitor._id,
-      qrBase64,
+      visitor, // send the full visitor object if needed
     });
 
   } catch (err) {
@@ -118,6 +108,7 @@ exports.scheduleVisitor = async (req, res) => {
     });
   }
 };
+
 // ===== Approve Visitor =====
 exports.approveVisitor = async (req, res) => {
   try {
@@ -390,6 +381,7 @@ exports.rejectVisitor = async (req, res) => {
 //     res.status(500).json({ msg: "Server Error" });
 //   }
 // };
+
 
 
 
