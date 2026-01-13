@@ -70,6 +70,9 @@ exports.scheduleVisitor = async (req, res) => {
     }
 
     const dateObj = new Date(scheduledAt);
+    if (isNaN(dateObj.getTime())) {
+      return res.status(400).json({ msg: "Invalid scheduled date" });
+    }
 
     // 🔹 Slot calculation
     let slot = "other";
@@ -90,36 +93,23 @@ exports.scheduleVisitor = async (req, res) => {
       slot,
     });
 
-    // 🔹 Get host info
-    const host = await User.findOne({ empId: req.user.empId });
+    // 🔹 Generate QR payload (secure)
+    const qrPayload = {
+      visitorId: visitor._id,
+      issuedAt: Date.now(),
+    };
 
-    // 🔹 Generate QR (Base64)
     const qrBase64 = await generateQRBase64(
-      JSON.stringify({ visitorId: visitor._id })
+      JSON.stringify(qrPayload)
     );
 
-    // 🔹 Generate PDF & Visitor Pass PNG (optional: send to frontend if needed)
-    const pdfBuffer = await generatePDF(
-      { ...visitor._doc, hostName: host?.name },
-      qrBase64
-    );
-
-    const passImageBuffer = await generateVisitorPassImage({
-      ...visitor._doc,
-      hostName: host?.name,
-    });
-
-    // 🔹 Remove email sending
-    // Email will now be handled on the frontend via EmailJS
-
-    // 🔹 Respond to frontend with all necessary data
+    // 🔹 Respond (minimal & fast)
     res.json({
       msg: "Visitor scheduled successfully!",
-      visitor,
-      qrBase64,          // Send QR code to frontend
-      pdfBuffer: pdfBuffer.toString("base64"), // Optional: send PDF as base64 if needed
-      passImageBuffer: passImageBuffer.toString("base64"), // Optional: send image as base64
+      visitorId: visitor._id,
+      qrBase64,
     });
+
   } catch (err) {
     console.error("Schedule Visitor Error:", err);
     res.status(500).json({
@@ -128,8 +118,6 @@ exports.scheduleVisitor = async (req, res) => {
     });
   }
 };
-
-
 // ===== Approve Visitor =====
 exports.approveVisitor = async (req, res) => {
   try {
@@ -402,6 +390,7 @@ exports.rejectVisitor = async (req, res) => {
 //     res.status(500).json({ msg: "Server Error" });
 //   }
 // };
+
 
 
 
