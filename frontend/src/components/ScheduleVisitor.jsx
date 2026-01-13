@@ -1,9 +1,10 @@
 import { useState, useContext, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import SidebarEmployee from "../components/EmployeeSidebar";
-import Topbar from "./Topbar.jsx";
 import api from "../utils/api.js";
+import QRCodeGenerator from "../components/QRCodeGenerator.jsx";
 import { AuthContext } from "../context/AuthContext.jsx";
+import Topbar from "./Topbar.jsx";
 import emailjs from "@emailjs/browser";
 
 export default function ScheduleVisitor() {
@@ -17,11 +18,13 @@ export default function ScheduleVisitor() {
     purpose: "",
     scheduledAt: "",
   });
-
+  const [photo, setPhoto] = useState(null);
+  const [qrData, setQrData] = useState("");
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    if (!user || user.role !== "employee") {
+    if (!user) return;
+    if (user.role !== "employee") {
       navigate("/login");
     }
   }, [user, navigate]);
@@ -32,42 +35,50 @@ export default function ScheduleVisitor() {
     try {
       // Prepare form data
       const fd = new FormData();
-      Object.keys(form).forEach((key) => fd.append(key, form[key]));
+      Object.keys(form).forEach((k) => fd.append(k, form[k]));
+      if (photo) fd.append("photo", photo);
 
-      // 1️⃣ Call backend to schedule visitor
+      // Call backend
       const res = await api.post("/employee/schedule-visitor", fd);
 
-      const { qrBase64 } = res.data;
+      const qrBase64 = res.data.qrBase64;
+      setQrData(qrBase64);
 
-      if (!qrBase64) {
-        alert("Visitor scheduled, but QR code missing!");
-        setLoading(false);
-        return;
-      }
+      // ✅ EmailJS: check public key first
+      const SERVICE_ID = process.env.REACT_APP_EMAILJS_SERVICE_ID;
+      const TEMPLATE_ID = process.env.REACT_APP_EMAILJS_TEMPLATE_ID;
+      const PUBLIC_KEY = process.env.REACT_APP_EMAILJS_PUBLIC_KEY;
 
-      // 2️⃣ Send email via EmailJS
-      if (form.email) {
-        const emailParams = {
-          to_name: form.name,
-          to_email: form.email,
-          purpose: form.purpose,
-          scheduledAt: form.scheduledAt,
-          qr: `data:image/png;base64,${qrBase64}`, // embed QR as image
-        };
-
-        await emailjs.send(
-          process.env.REACT_APP_EMAILJS_SERVICE_ID,
-          process.env.REACT_APP_EMAILJS_TEMPLATE_ID,
-          emailParams,
-          process.env.REACT_APP_EMAILJS_PUBLIC_KEY
-        );
-
-        alert("Visitor scheduled and email sent successfully!");
+      if (form.email && SERVICE_ID && TEMPLATE_ID && PUBLIC_KEY) {
+        try {
+          await emailjs.send(
+            SERVICE_ID,
+            TEMPLATE_ID,
+            {
+              to_name: form.name,
+              to_email: form.email,
+              qr: qrBase64,
+              scheduledAt: form.scheduledAt,
+              purpose: form.purpose,
+            },
+            PUBLIC_KEY
+          );
+          alert("Visitor scheduled and email sent successfully!");
+          console.log(PUBLIC_KEY);
+        } catch (emailErr) {
+          console.error("EmailJS Error:", emailErr);
+          alert(
+            "Visitor scheduled but email failed: " +
+              (emailErr.text || emailErr.message || JSON.stringify(emailErr))
+          );
+        }
       } else {
-        alert("Visitor scheduled successfully. No email sent.");
+        alert(
+          "Visitor scheduled successfully. Email not sent because EmailJS is not configured properly."
+        );
       }
 
-      // 3️⃣ Clear form
+      // Clear form
       setForm({
         name: "",
         email: "",
@@ -75,7 +86,7 @@ export default function ScheduleVisitor() {
         purpose: "",
         scheduledAt: "",
       });
-
+      setPhoto(null);
     } catch (err) {
       console.error("Error scheduling visitor:", err);
       alert(err.response?.data?.msg || "Error scheduling visitor");
@@ -86,10 +97,8 @@ export default function ScheduleVisitor() {
 
   return (
     <div className="flex flex-col md:flex-row min-h-screen bg-gray-100">
-      {/* Sidebar */}
       <SidebarEmployee className="w-full md:w-64 flex-shrink-0" />
 
-      {/* Main Content */}
       <div className="flex-1 flex flex-col overflow-auto pt-[144px] md:pt-20 md:ml-64">
         <Topbar />
 
@@ -99,7 +108,6 @@ export default function ScheduleVisitor() {
               Schedule Visitor
             </h1>
 
-            {/* FORM FIELDS */}
             <div className="space-y-4">
               <input
                 type="text"
@@ -139,7 +147,6 @@ export default function ScheduleVisitor() {
               />
             </div>
 
-            {/* SUBMIT BUTTON */}
             <button
               onClick={handleSubmit}
               disabled={loading}
@@ -149,6 +156,17 @@ export default function ScheduleVisitor() {
             >
               {loading ? "Scheduling..." : "Schedule Visitor"}
             </button>
+
+            {qrData && (
+              <div className="mt-8 text-center border-t pt-6">
+                <h2 className="text-lg font-semibold text-gray-700 mb-3">
+                  Generated QR Code
+                </h2>
+                <div className="flex justify-center">
+                  <QRCodeGenerator value={qrData} size={200} />
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>
