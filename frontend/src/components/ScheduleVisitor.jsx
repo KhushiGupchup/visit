@@ -154,19 +154,11 @@ export default function ScheduleVisitor() {
               {loading ? "Scheduling..." : "Schedule Visitor"}
             </button>
 
-            {qrData && (
-              <div className="mt-8 text-center border-t pt-6">
-                <h2 className="text-lg font-semibold text-gray-700 mb-3">
-                  Generated QR Code
-                </h2>
-                <div className="flex justify-center">
-                  <QRCodeGenerator value={qrData} size={200} />
-                </div>
-              </div>
-            )}
+           
           </div>
         </div>
       </div>
     </div>
   );
 }
+
