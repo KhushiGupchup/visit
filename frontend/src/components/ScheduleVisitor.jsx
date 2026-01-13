@@ -50,15 +50,15 @@ export default function ScheduleVisitor() {
       const qrBase64 = canvas.toDataURL("image/png");
 
       // EmailJS integration
-      const SERVICE_ID = "service_rfost09";
-      const TEMPLATE_ID = "template_hptua9m";
-      const PUBLIC_KEY = "Kr_Xjtes6GaipRqxB";
-      console.log("SERVICE_ID:", SERVICE_ID);
-      console.log("TEMPLATE_ID:", TEMPLATE_ID);
-      console.log("PUBLIC_KEY:", PUBLIC_KEY);
+      // const SERVICE_ID = "service_rfost09";
+      // const TEMPLATE_ID = "template_hptua9m";
+      // const PUBLIC_KEY = "Kr_Xjtes6GaipRqxB";
+      // console.log("SERVICE_ID:", SERVICE_ID);
+      // console.log("TEMPLATE_ID:", TEMPLATE_ID);
+      // console.log("PUBLIC_KEY:", PUBLIC_KEY);
 
 
-      if (form.email && SERVICE_ID && TEMPLATE_ID && PUBLIC_KEY) {
+      if (form.email ) {
         const templateParams = {
           to_name: form.name,
           email: form.email,
@@ -68,7 +68,13 @@ export default function ScheduleVisitor() {
         };
 
         try {
-          await emailjs.send(SERVICE_ID, TEMPLATE_ID, templateParams, PUBLIC_KEY);
+          await emailjs.send(
+        "service_rfost09",
+        "template_hptua9m",
+        templateParams,
+        "Kr_Xjtes6GaipRqxB"
+      );
+      
           setStatus("Visitor scheduled and email sent ✅");
         } catch (emailErr) {
           console.error("EmailJS Error:", emailErr);
@@ -169,6 +175,7 @@ export default function ScheduleVisitor() {
     </div>
   );
 }
+
 
 
 
