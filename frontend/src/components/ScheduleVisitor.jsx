@@ -1,10 +1,10 @@
 import { useState, useContext, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import SidebarEmployee from "../components/EmployeeSidebar";
+import Topbar from "./Topbar.jsx";
 import api from "../utils/api.js";
 import QRCodeGenerator from "../components/QRCodeGenerator.jsx";
 import { AuthContext } from "../context/AuthContext.jsx";
-import Topbar from "./Topbar.jsx";
 import emailjs from "@emailjs/browser";
 
 export default function ScheduleVisitor() {
@@ -22,11 +22,10 @@ export default function ScheduleVisitor() {
   const [qrData, setQrData] = useState("");
   const [loading, setLoading] = useState(false);
 
+  // Redirect non-employees
   useEffect(() => {
     if (!user) return;
-    if (user.role !== "employee") {
-      navigate("/login");
-    }
+    if (user.role !== "employee") navigate("/login");
   }, [user, navigate]);
 
   const handleSubmit = async () => {
@@ -44,7 +43,7 @@ export default function ScheduleVisitor() {
       const qrBase64 = res.data.qrBase64;
       setQrData(qrBase64);
 
-      // ✅ EmailJS: check public key first
+      // ✅ EmailJS (optional)
       const SERVICE_ID = process.env.REACT_APP_EMAILJS_SERVICE_ID;
       const TEMPLATE_ID = process.env.REACT_APP_EMAILJS_TEMPLATE_ID;
       const PUBLIC_KEY = process.env.REACT_APP_EMAILJS_PUBLIC_KEY;
@@ -64,17 +63,15 @@ export default function ScheduleVisitor() {
             PUBLIC_KEY
           );
           alert("Visitor scheduled and email sent successfully!");
-          console.log(PUBLIC_KEY);
         } catch (emailErr) {
           console.error("EmailJS Error:", emailErr);
           alert(
-            "Visitor scheduled but email failed: " +
-              (emailErr.text || emailErr.message || JSON.stringify(emailErr))
+            "Visitor scheduled, but email failed. Check console for details."
           );
         }
       } else {
         alert(
-          "Visitor scheduled successfully. Email not sent because EmailJS is not configured properly."
+          "Visitor scheduled successfully. Email not sent because EmailJS is not configured."
         );
       }
 
