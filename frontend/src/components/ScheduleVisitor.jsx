@@ -48,32 +48,37 @@ export default function ScheduleVisitor() {
       const TEMPLATE_ID = process.env.REACT_APP_EMAILJS_TEMPLATE_ID;
       const PUBLIC_KEY = process.env.REACT_APP_EMAILJS_PUBLIC_KEY;
 
-      if (form.email && SERVICE_ID && TEMPLATE_ID && PUBLIC_KEY) {
-        try {
-          await emailjs.send(
-            SERVICE_ID,
-            TEMPLATE_ID,
-            {
-              to_name: form.name,
-              email: form.email,
-              qr: qrBase64,
-              scheduledAt: form.scheduledAt,
-              purpose: form.purpose,
-            },
-            PUBLIC_KEY
-          );
-          alert("Visitor scheduled and email sent successfully!");
-        } catch (emailErr) {
-          console.error("EmailJS Error:", emailErr);
-          alert(
-            "Visitor scheduled, but email failed. Check console for details."
-          );
-        }
-      } else {
-        alert(
-          "Visitor scheduled successfully. Email not sent because EmailJS is not configured."
-        );
-      }
+    if (form.email && SERVICE_ID && TEMPLATE_ID && PUBLIC_KEY) {
+  try {
+    const templateParams = {
+      to_name: form.name,      // matches {{to_name}}
+      email: form.email,       // matches {{email}}
+      purpose: form.purpose,   // matches {{purpose}}
+      scheduledAt: form.scheduledAt, // matches {{scheduledAt}}
+      qr: qrBase64             // matches {{qr}}
+    };
+
+    const result = await emailjs.send(
+      SERVICE_ID,
+      TEMPLATE_ID,
+      templateParams,
+      PUBLIC_KEY
+    );
+
+    console.log("EmailJS Success:", result.status, result.text);
+    alert("Visitor scheduled and email sent successfully!");
+  } catch (emailErr) {
+    console.error("EmailJS Error:", emailErr);
+    alert(
+      "Visitor scheduled, but email failed. Check console for details."
+    );
+  }
+} else {
+  alert(
+    "Visitor scheduled successfully. Email not sent because EmailJS is not configured."
+  );
+}
+
 
       // Clear form
       setForm({
@@ -161,5 +166,6 @@ export default function ScheduleVisitor() {
     </div>
   );
 }
+
 
 
