@@ -4,7 +4,7 @@ import SidebarEmployee from "../components/EmployeeSidebar";
 import Topbar from "./Topbar.jsx";
 import api from "../utils/api.js";
 import { AuthContext } from "../context/AuthContext.jsx";
-import emailjs from "@emailjs/browser";
+import emailjs from "emailjs-com";
 import { QRCodeCanvas } from "qrcode.react";
 
 export default function ScheduleVisitor() {
@@ -169,5 +169,6 @@ export default function ScheduleVisitor() {
     </div>
   );
 }
+
 
 
