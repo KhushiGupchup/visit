@@ -1,4 +1,4 @@
-import { useState, useContext, useEffect } from "react";
+import { useState, useContext, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import SidebarEmployee from "../components/EmployeeSidebar";
 import Topbar from "./Topbar.jsx";
@@ -10,6 +10,7 @@ import { QRCodeCanvas } from "qrcode.react";
 export default function ScheduleVisitor() {
   const { user } = useContext(AuthContext);
   const navigate = useNavigate();
+  const qrRef = useRef(); // for QR code canvas
 
   const [form, setForm] = useState({
     name: "",
@@ -19,16 +20,13 @@ export default function ScheduleVisitor() {
     scheduledAt: "",
   });
 
-  const [photo, setPhoto] = useState(null);
   const [status, setStatus] = useState("");
   const [loading, setLoading] = useState(false);
 
-  // Redirect non-employees
   useEffect(() => {
     if (!user || user.role !== "employee") navigate("/login");
   }, [user, navigate]);
 
-  // Prepare QR data string
   const qrDataString = () =>
     `Name: ${form.name}, Email: ${form.email}, Phone: ${form.phone}, Purpose: ${form.purpose}, Scheduled At: ${form.scheduledAt}`;
 
@@ -37,62 +35,43 @@ export default function ScheduleVisitor() {
     setStatus("");
 
     try {
-      // Prepare form data for backend
-      const fd = new FormData();
-      Object.keys(form).forEach((k) => fd.append(k, form[k]));
-      if (photo) fd.append("photo", photo);
+      // 1️⃣ Save visitor in backend
+      const res = await api.post("/employee/schedule-visitor", form);
 
-      // Call backend
-      const res = await api.post("/employee/schedule-visitor", fd);
+      // 2️⃣ Generate QR code Base64
+      const canvas = qrRef.current?.querySelector("canvas");
+      let qrBase64 = "";
+      if (canvas) qrBase64 = canvas.toDataURL("image/png");
 
-      // ✅ Generate QR code as Base64
-      const canvas = document.getElementById("qr-code");
-      const qrBase64 = canvas.toDataURL("image/png");
-
-      // EmailJS integration
-      // const SERVICE_ID = "service_rfost09";
-      // const TEMPLATE_ID = "template_hptua9m";
-      // const PUBLIC_KEY = "Kr_Xjtes6GaipRqxB";
-      // console.log("SERVICE_ID:", SERVICE_ID);
-      // console.log("TEMPLATE_ID:", TEMPLATE_ID);
-      // console.log("PUBLIC_KEY:", PUBLIC_KEY);
-
-
-      if (form.email ) {
+      // 3️⃣ Send email via EmailJS
+      if (form.email) {
         const templateParams = {
           to_name: form.name,
           email: form.email,
           purpose: form.purpose,
           scheduledAt: form.scheduledAt,
-          qr: qrBase64,
+          qr: qrBase64, // <-- Base64 for {{qr}}
         };
 
         try {
           await emailjs.send(
-        "service_rfost09",
-        "template_hptua9m",
-        templateParams,
-        "Kr_Xjtes6GaipRqxB"
-      );
-      
+            "service_rfost09",
+            "template_hptua9m",
+            templateParams,
+            "Kr_Xjtes6GaipRqxB"
+          );
           setStatus("Visitor scheduled and email sent ✅");
         } catch (emailErr) {
           console.error("EmailJS Error:", emailErr);
           setStatus("Visitor scheduled, but email failed ❌");
         }
       } else {
-        setStatus("Visitor scheduled successfully (EmailJS not configured)");
+        setStatus("Visitor scheduled successfully ✅");
       }
 
       // Clear form
-      setForm({
-        name: "",
-        email: "",
-        phone: "",
-        purpose: "",
-        scheduledAt: "",
-      });
-      setPhoto(null);
+      setForm({ name: "", email: "", phone: "", purpose: "", scheduledAt: "" });
+
     } catch (err) {
       console.error("Error scheduling visitor:", err);
       setStatus(err.response?.data?.msg || "Error scheduling visitor ❌");
@@ -104,7 +83,6 @@ export default function ScheduleVisitor() {
   return (
     <div className="flex flex-col md:flex-row min-h-screen bg-gray-100">
       <SidebarEmployee className="w-full md:w-64 flex-shrink-0" />
-
       <div className="flex-1 flex flex-col overflow-auto pt-[144px] md:pt-20 md:ml-64">
         <Topbar />
 
@@ -115,59 +93,22 @@ export default function ScheduleVisitor() {
             </h1>
 
             <div className="space-y-4">
-              <input
-                type="text"
-                placeholder="Full Name"
-                value={form.name}
-                onChange={(e) => setForm({ ...form, name: e.target.value })}
-                className="border p-3 w-full rounded-lg focus:ring-2 focus:ring-blue-400 outline-none"
-              />
-              <input
-                type="email"
-                placeholder="Email Address"
-                value={form.email}
-                onChange={(e) => setForm({ ...form, email: e.target.value })}
-                className="border p-3 w-full rounded-lg focus:ring-2 focus:ring-blue-400 outline-none"
-              />
-              <input
-                type="text"
-                placeholder="Phone Number"
-                value={form.phone}
-                onChange={(e) => setForm({ ...form, phone: e.target.value })}
-                className="border p-3 w-full rounded-lg focus:ring-2 focus:ring-blue-400 outline-none"
-              />
-              <input
-                type="text"
-                placeholder="Purpose of Visit"
-                value={form.purpose}
-                onChange={(e) => setForm({ ...form, purpose: e.target.value })}
-                className="border p-3 w-full rounded-lg focus:ring-2 focus:ring-blue-400 outline-none"
-              />
-              <input
-                type="datetime-local"
-                value={form.scheduledAt}
-                onChange={(e) => setForm({ ...form, scheduledAt: e.target.value })}
-                className="border p-3 w-full rounded-lg focus:ring-2 focus:ring-blue-400 outline-none"
-              />
+              <input type="text" placeholder="Full Name" value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} className="border p-3 w-full rounded-lg focus:ring-2 focus:ring-blue-400 outline-none" />
+              <input type="email" placeholder="Email Address" value={form.email} onChange={e => setForm({ ...form, email: e.target.value })} className="border p-3 w-full rounded-lg focus:ring-2 focus:ring-blue-400 outline-none" />
+              <input type="text" placeholder="Phone Number" value={form.phone} onChange={e => setForm({ ...form, phone: e.target.value })} className="border p-3 w-full rounded-lg focus:ring-2 focus:ring-blue-400 outline-none" />
+              <input type="text" placeholder="Purpose of Visit" value={form.purpose} onChange={e => setForm({ ...form, purpose: e.target.value })} className="border p-3 w-full rounded-lg focus:ring-2 focus:ring-blue-400 outline-none" />
+              <input type="datetime-local" value={form.scheduledAt} onChange={e => setForm({ ...form, scheduledAt: e.target.value })} className="border p-3 w-full rounded-lg focus:ring-2 focus:ring-blue-400 outline-none" />
             </div>
 
-            <button
-              onClick={handleSubmit}
-              disabled={loading}
-              className={`w-full ${
-                loading ? "opacity-50 cursor-not-allowed" : ""
-              } bg-teal-600 hover:bg-teal-700 text-white py-3 rounded-lg font-semibold mt-6 transition`}
-            >
+            <button onClick={handleSubmit} disabled={loading} className={`w-full ${loading ? "opacity-50 cursor-not-allowed" : ""} bg-teal-600 hover:bg-teal-700 text-white py-3 rounded-lg font-semibold mt-6 transition`}>
               {loading ? "Scheduling..." : "Schedule Visitor"}
             </button>
 
-            {status && (
-              <p className="mt-4 text-center font-medium text-gray-700">{status}</p>
-            )}
+            {status && <p className="mt-4 text-center font-medium text-gray-700">{status}</p>}
 
-            {/* Hidden QR code */}
-            <div style={{ display: "none" }}>
-              <QRCodeCanvas id="qr-code" value={qrDataString()} size={200} />
+            {/* Hidden QR code for email */}
+            <div ref={qrRef} style={{ display: "none" }}>
+              <QRCodeCanvas value={qrDataString()} size={200} />
             </div>
           </div>
         </div>
@@ -175,8 +116,3 @@ export default function ScheduleVisitor() {
     </div>
   );
 }
-
-
-
-
-
