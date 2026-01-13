@@ -3,9 +3,9 @@ import { useNavigate } from "react-router-dom";
 import SidebarEmployee from "../components/EmployeeSidebar";
 import Topbar from "./Topbar.jsx";
 import api from "../utils/api.js";
-import QRCodeGenerator from "../components/QRCodeGenerator.jsx";
 import { AuthContext } from "../context/AuthContext.jsx";
 import emailjs from "@emailjs/browser";
+import { QRCodeCanvas } from "qrcode.react";
 
 export default function ScheduleVisitor() {
   const { user } = useContext(AuthContext);
@@ -18,21 +18,26 @@ export default function ScheduleVisitor() {
     purpose: "",
     scheduledAt: "",
   });
+
   const [photo, setPhoto] = useState(null);
-  const [qrData, setQrData] = useState("");
+  const [status, setStatus] = useState("");
   const [loading, setLoading] = useState(false);
 
   // Redirect non-employees
   useEffect(() => {
-    if (!user) return;
-    if (user.role !== "employee") navigate("/login");
+    if (!user || user.role !== "employee") navigate("/login");
   }, [user, navigate]);
+
+  // Prepare QR data string
+  const qrDataString = () =>
+    `Name: ${form.name}, Email: ${form.email}, Phone: ${form.phone}, Purpose: ${form.purpose}, Scheduled At: ${form.scheduledAt}`;
 
   const handleSubmit = async () => {
     setLoading(true);
+    setStatus("");
 
     try {
-      // Prepare form data
+      // Prepare form data for backend
       const fd = new FormData();
       Object.keys(form).forEach((k) => fd.append(k, form[k]));
       if (photo) fd.append("photo", photo);
@@ -40,45 +45,34 @@ export default function ScheduleVisitor() {
       // Call backend
       const res = await api.post("/employee/schedule-visitor", fd);
 
-      const qrBase64 = res.data.qrBase64;
-      setQrData(qrBase64);
+      // ✅ Generate QR code as Base64
+      const canvas = document.getElementById("qr-code");
+      const qrBase64 = canvas.toDataURL("image/png");
 
-      // ✅ EmailJS (optional)
+      // EmailJS integration
       const SERVICE_ID = process.env.REACT_APP_EMAILJS_SERVICE_ID;
       const TEMPLATE_ID = process.env.REACT_APP_EMAILJS_TEMPLATE_ID;
       const PUBLIC_KEY = process.env.REACT_APP_EMAILJS_PUBLIC_KEY;
 
-    if (form.email && SERVICE_ID && TEMPLATE_ID && PUBLIC_KEY) {
-  try {
-    const templateParams = {
-      to_name: form.name,      // matches {{to_name}}
-      email: form.email,       // matches {{email}}
-      purpose: form.purpose,   // matches {{purpose}}
-      scheduledAt: form.scheduledAt, // matches {{scheduledAt}}
-      qr: qrBase64             // matches {{qr}}
-    };
+      if (form.email && SERVICE_ID && TEMPLATE_ID && PUBLIC_KEY) {
+        const templateParams = {
+          to_name: form.name,
+          email: form.email,
+          purpose: form.purpose,
+          scheduledAt: form.scheduledAt,
+          qr: qrBase64,
+        };
 
-    const result = await emailjs.send(
-      SERVICE_ID,
-      TEMPLATE_ID,
-      templateParams,
-      PUBLIC_KEY
-    );
-
-    console.log("EmailJS Success:", result.status, result.text);
-    alert("Visitor scheduled and email sent successfully!");
-  } catch (emailErr) {
-    console.error("EmailJS Error:", emailErr);
-    alert(
-      "Visitor scheduled, but email failed. Check console for details."
-    );
-  }
-} else {
-  alert(
-    "Visitor scheduled successfully. Email not sent because EmailJS is not configured."
-  );
-}
-
+        try {
+          await emailjs.send(SERVICE_ID, TEMPLATE_ID, templateParams, PUBLIC_KEY);
+          setStatus("Visitor scheduled and email sent ✅");
+        } catch (emailErr) {
+          console.error("EmailJS Error:", emailErr);
+          setStatus("Visitor scheduled, but email failed ❌");
+        }
+      } else {
+        setStatus("Visitor scheduled successfully (EmailJS not configured)");
+      }
 
       // Clear form
       setForm({
@@ -91,7 +85,7 @@ export default function ScheduleVisitor() {
       setPhoto(null);
     } catch (err) {
       console.error("Error scheduling visitor:", err);
-      alert(err.response?.data?.msg || "Error scheduling visitor");
+      setStatus(err.response?.data?.msg || "Error scheduling visitor ❌");
     } finally {
       setLoading(false);
     }
@@ -142,9 +136,7 @@ export default function ScheduleVisitor() {
               <input
                 type="datetime-local"
                 value={form.scheduledAt}
-                onChange={(e) =>
-                  setForm({ ...form, scheduledAt: e.target.value })
-                }
+                onChange={(e) => setForm({ ...form, scheduledAt: e.target.value })}
                 className="border p-3 w-full rounded-lg focus:ring-2 focus:ring-blue-400 outline-none"
               />
             </div>
@@ -159,13 +151,17 @@ export default function ScheduleVisitor() {
               {loading ? "Scheduling..." : "Schedule Visitor"}
             </button>
 
-           
+            {status && (
+              <p className="mt-4 text-center font-medium text-gray-700">{status}</p>
+            )}
+
+            {/* Hidden QR code */}
+            <div style={{ display: "none" }}>
+              <QRCodeCanvas id="qr-code" value={qrDataString()} size={200} />
+            </div>
           </div>
         </div>
       </div>
     </div>
   );
 }
-
-
-
