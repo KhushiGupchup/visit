@@ -55,7 +55,7 @@ export default function ScheduleVisitor() {
             TEMPLATE_ID,
             {
               to_name: form.name,
-              to_email: form.email,
+              email: form.email,
               qr: qrBase64,
               scheduledAt: form.scheduledAt,
               purpose: form.purpose,
@@ -161,4 +161,5 @@ export default function ScheduleVisitor() {
     </div>
   );
 }
+
 
