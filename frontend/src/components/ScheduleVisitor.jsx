@@ -5,12 +5,12 @@ import Topbar from "./Topbar.jsx";
 import api from "../utils/api.js";
 import { AuthContext } from "../context/AuthContext.jsx";
 import emailjs from "@emailjs/browser";
-import { QRCodeCanvas } from "qrcode.react";
+
 
 export default function ScheduleVisitor() {
   const { user } = useContext(AuthContext);
   const navigate = useNavigate();
-  const qrCanvasRef = useRef(null);
+  
 
   const [form, setForm] = useState({
     name: "",
@@ -35,59 +35,51 @@ export default function ScheduleVisitor() {
     Scheduled At: ${form.scheduledAt}
   `;
 
-  const handleSubmit = async () => {
-    setLoading(true);
-    setStatus("");
+ const handleSubmit = async () => {
+  setLoading(true);
+  setStatus("");
 
-    try {
-      //  Save visitor to backend
-      await api.post("/employee/schedule-visitor", form);
+  try {
+    // 1️⃣ Save visitor & get QR from backend
+    const res = await api.post("/employee/schedule-visitor", form);
 
-      //  Get QR Base64 (frontend only)
-      const qrBase64 = qrCanvasRef.current?.toDataURL("image/png");
+    const qrBase64 = res.data.qr; // 👈 BACKEND QR
 
-      // 3️⃣ Send Email via EmailJS
-      if (form.email && qrBase64) {
-        const templateParams = {
-          to_name: form.name,
-          email: form.email,
-          purpose: form.purpose,
-          scheduledAt: form.scheduledAt,
-          qr: qrBase64, // use {{qr}} in EmailJS
-        };
+    // 2️⃣ Send Email using EmailJS
+    if (form.email && qrBase64) {
+      const templateParams = {
+        to_name: form.name,
+        email: form.email,
+        purpose: form.purpose,
+        scheduledAt: form.scheduledAt,
+        qr: qrBase64, // backend-generated QR
+      };
 
-       await emailjs.send(
+      await emailjs.send(
         process.env.REACT_APP_EMAILJS_SERVICE_ID,
         process.env.REACT_APP_EMAILJS_TEMPLATE_ID,
         templateParams,
         process.env.REACT_APP_EMAILJS_PUBLIC_KEY
       );
-
-      }
-
-      alert("Visitor scheduled & email sent ");
-      console.log(
-  process.env.REACT_APP_EMAILJS_SERVICE_ID,
-  process.env.REACT_APP_EMAILJS_TEMPLATE_ID,
-  process.env.REACT_APP_EMAILJS_PUBLIC_KEY
-);
-
-      // Reset form
-      setForm({
-        name: "",
-        email: "",
-        phone: "",
-        purpose: "",
-        scheduledAt: "",
-      });
-
-    } catch (err) {
-      console.error(err);
-      setStatus("Error scheduling visitor ");
-    } finally {
-      setLoading(false);
     }
-  };
+
+    alert("Visitor scheduled & email sent ");
+
+    setForm({
+      name: "",
+      email: "",
+      phone: "",
+      purpose: "",
+      scheduledAt: "",
+    });
+
+  } catch (err) {
+    console.error(err);
+    setStatus("Error scheduling visitor ");
+  } finally {
+    setLoading(false);
+  }
+};
 
   return (
     <div className="flex flex-col md:flex-row min-h-screen bg-gray-100">
@@ -163,4 +155,5 @@ export default function ScheduleVisitor() {
     </div>
   );
 }
+
 
