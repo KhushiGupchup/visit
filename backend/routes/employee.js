@@ -21,8 +21,8 @@ router.use(roleMiddleware(["employee"])); // only employees
 // Dashboard
 router.get("/dashboard", dashboard);
 
-// Schedule visitor with photo upload
-router.post("/schedule-visitor", upload.single("photo"), scheduleVisitor);
+// Schedule visitor
+router.post("/schedule-visitor", scheduleVisitor);
 
 // Change password
 router.post("/change-password", changePassword);
@@ -39,4 +39,5 @@ router.delete("/delete-visitor/:visitorId", deleteVisitor);
 router.patch("/reject-visitor/:visitorId", rejectVisitor);
 
 module.exports = router;
+
 
