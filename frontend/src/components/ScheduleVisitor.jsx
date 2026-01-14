@@ -40,10 +40,10 @@ export default function ScheduleVisitor() {
     setStatus("");
 
     try {
-      // 1️⃣ Save visitor to backend
+      //  Save visitor to backend
       await api.post("/employee/schedule-visitor", form);
 
-      // 2️⃣ Get QR Base64 (frontend only)
+      //  Get QR Base64 (frontend only)
       const qrBase64 = qrCanvasRef.current?.toDataURL("image/png");
 
       // 3️⃣ Send Email via EmailJS
@@ -56,15 +56,21 @@ export default function ScheduleVisitor() {
           qr: qrBase64, // use {{qr}} in EmailJS
         };
 
-        await emailjs.send(
-          "service_rfost09",
-          "template_hptua9m",
-          templateParams,
-          "Kr_Xjtes6GaipRqxB"
-        );
+       await emailjs.send(
+        process.env.REACT_APP_EMAILJS_SERVICE_ID,
+        process.env.REACT_APP_EMAILJS_TEMPLATE_ID,
+        templateParams,
+        process.env.REACT_APP_EMAILJS_PUBLIC_KEY
+      );
+
       }
 
-      setStatus("Visitor scheduled & email sent ✅");
+      alert("Visitor scheduled & email sent ");
+      console.log(
+  process.env.REACT_APP_EMAILJS_SERVICE_ID,
+  process.env.REACT_APP_EMAILJS_TEMPLATE_ID,
+  process.env.REACT_APP_EMAILJS_PUBLIC_KEY
+);
 
       // Reset form
       setForm({
@@ -77,7 +83,7 @@ export default function ScheduleVisitor() {
 
     } catch (err) {
       console.error(err);
-      setStatus("Error scheduling visitor ❌");
+      setStatus("Error scheduling visitor ");
     } finally {
       setLoading(false);
     }
@@ -143,7 +149,7 @@ export default function ScheduleVisitor() {
               <p className="mt-4 text-center font-medium">{status}</p>
             )}
 
-            {/* 🔒 Hidden QR (frontend only) */}
+            {/* Hidden QR (frontend only) */}
             <div style={{ display: "none" }}>
               <QRCodeCanvas
                 value={qrDataString}
@@ -157,3 +163,4 @@ export default function ScheduleVisitor() {
     </div>
   );
 }
+
