@@ -95,14 +95,16 @@ exports.scheduleVisitor = async (req, res) => {
       slot,
     });
 
-    // ✅ Generate QR (BACKEND)
-    const qrPayload = JSON.stringify({
-      visitorId: visitor._id,
-      name: visitor.name,
-      scheduledAt: visitor.scheduledAt,
-    });
+    // Generate QR (BACKEND)
+const qrPayload = JSON.stringify({
+  visitorId: visitor._id,
+  name: visitor.name,
+  scheduledAt: visitor.scheduledAt,
+});
 
-    const qrBase64 = await QRCode.toDataURL(qrPayload);
+// Use your imported function
+const qrBase64 = await generateQRBase64(qrPayload);
+
 
     // (Optional) store QR in DB
     visitor.qrData = qrBase64;
@@ -395,6 +397,7 @@ exports.rejectVisitor = async (req, res) => {
 //     res.status(500).json({ msg: "Server Error" });
 //   }
 // };
+
 
 
 
