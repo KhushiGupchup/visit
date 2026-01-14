@@ -95,14 +95,9 @@ exports.scheduleVisitor = async (req, res) => {
       slot,
     });
 
-   // Only store visitorId in QR 
-const qrPayload = JSON.stringify({ visitorId: visitor._id });
-const qrBase64 = await generateQRBase64(qrPayload);
-
-
-// Use your imported function
-const qrBase64 = await generateQRBase64(qrPayload);
-
+       // Only store visitorId in QR 
+    const qrPayload = JSON.stringify({ visitorId: visitor._id });
+    const qrBase64 = await generateQRBase64(qrPayload);
 
     // (Optional) store QR in DB
     visitor.qrData = qrBase64;
@@ -395,6 +390,7 @@ exports.rejectVisitor = async (req, res) => {
 //     res.status(500).json({ msg: "Server Error" });
 //   }
 // };
+
 
 
 
