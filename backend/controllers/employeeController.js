@@ -9,8 +9,8 @@ const { generatePDF } = require("../utils/generatePDF");
 const { generateVisitorPassImage } = require("../utils/paasImage");
 const sendEmail = require("../utils/sendEmail");
 
-// ===== Dashboard =====
-// 
+//Dashboard 
+
 exports.dashboard = async (req, res) => {
   try {
     const empId = Number(req.user.empId);
@@ -60,13 +60,13 @@ exports.dashboard = async (req, res) => {
 };
 
 
-// ===== Schedule Visitor =====
+// Schedule Visitor
 
 exports.scheduleVisitor = async (req, res) => {
   try {
     const { name, email, phone, purpose, scheduledAt } = req.body;
 
-    // ✅ Validate
+    //  Validate
     if (!name || !phone || !scheduledAt) {
       return res.status(400).json({ msg: "Required fields missing" });
     }
@@ -76,14 +76,14 @@ exports.scheduleVisitor = async (req, res) => {
       return res.status(400).json({ msg: "Invalid scheduled date" });
     }
 
-    // ✅ Slot calculation
+    // Slot 
     let slot = "other";
     const hours = dateObj.getHours();
     if (hours >= 9 && hours < 11) slot = "slot1";
     else if (hours >= 11 && hours < 14) slot = "slot2";
     else if (hours >= 14 && hours < 15) slot = "slot3";
 
-    // ✅ Create visitor
+    //  Create visitor
     const visitor = await Visitor.create({
       name,
       email,
@@ -103,7 +103,7 @@ exports.scheduleVisitor = async (req, res) => {
     visitor.qrData = qrBase64;
     await visitor.save();
 
-    // ✅ Send QR back to frontend
+    //  Send QR back to frontend
     res.json({
       msg: "Visitor scheduled successfully!",
       visitor,
@@ -118,7 +118,7 @@ exports.scheduleVisitor = async (req, res) => {
     });
   }
 };
-// ===== Approve Visitor =====
+// Approve Visitor
 exports.approveVisitor = async (req, res) => {
   try {
     const { visitorId } = req.params;
@@ -322,7 +322,7 @@ exports.deleteVisitor = async (req, res) => {
 
 
 
-// ===== Reject Visitor =====
+//  Reject Visitor 
 exports.rejectVisitor = async (req, res) => {
   try {
     const { visitorId } = req.params;
@@ -357,39 +357,6 @@ exports.rejectVisitor = async (req, res) => {
   }
 };
 
-// // employeeController.js
-// exports.addVisitorByEmployee = async (req, res) => {
-//   try {
-//     const employee = req.user;
-//     if (!employee || employee.role !== "employee")
-//       return res.status(403).json({ msg: "Access denied" });
-
-//     const allowedSlots = ["slot1", "slot2", "slot3", "other"];
-//     const slot = allowedSlots.includes(req.body.slot) ? req.body.slot : "other";
-
-//     const visitorData = {
-//       name: req.body.name,
-//       email: req.body.email,
-//       phone: req.body.phone,
-//       hostEmpId: employee.empId,
-//       hostName: employee.name,
-//       purpose: req.body.purpose,
-//       scheduledAt: req.body.scheduledAt,
-//       slot,
-//       status: "pending",
-//       photo: req.file ? req.file.filename : null,
-//     };
-
-//     const newVisit = await Visitor.create(visitorData);
-
-//     // Optional: generate QR or PDF/email here if desired for pending visitors
-
-//     res.status(201).json({ msg: "Visitor scheduled successfully", data: newVisit });
-//   } catch (err) {
-//     console.error("Add Visitor Error:", err);
-//     res.status(500).json({ msg: "Server Error" });
-//   }
-// };
 
 
 
