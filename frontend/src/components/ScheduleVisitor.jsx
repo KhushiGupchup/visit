@@ -60,8 +60,8 @@ export default function ScheduleVisitor() {
 
         try {
           await emailjs.send(
-            "service_rfost09",
-            "template_hptua9m",
+            process.env.REACT_APP_EMAILJS_SERVICE_ID,
+            process.env.REACT_APP_EMAILJS_TEMPLATE_ID,
             templateParams,
             "Kr_Xjtes6GaipRqxB"
           );
@@ -153,5 +153,6 @@ export default function ScheduleVisitor() {
     </div>
   );
 }
+
 
 
