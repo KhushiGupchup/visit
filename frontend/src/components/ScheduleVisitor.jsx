@@ -48,12 +48,18 @@ const handleSubmit = async () => {
         qr: qrBase64, // backend-generated QR
       };
 
+      try {
       await emailjs.send(
         "service_rfost09",
         "template_hptua9m",
         templateParams,
         "Kr_Xjtes6GaipRqxB"
       );
+      setStatus("Visitor Pass Sent Successfully ✅");
+    } catch (error) {
+      console.error(error);
+      setStatus("Failed to Send ❌");
+    }
     }
     
 
@@ -145,6 +151,7 @@ const handleSubmit = async () => {
     </div>
   );
 }
+
 
 
 
