@@ -49,8 +49,8 @@ const handleSubmit = async () => {
       };
 
       await emailjs.send(
-        process.env.REACT_APP_EMAILJS_SERVICE_ID,
-        process.env.REACT_APP_EMAILJS_TEMPLATE_ID,
+        "service_rfost09",
+        "template_hptua9m",
         templateParams,
         "Kr_Xjtes6GaipRqxB"
       );
@@ -145,6 +145,7 @@ const handleSubmit = async () => {
     </div>
   );
 }
+
 
 
 
