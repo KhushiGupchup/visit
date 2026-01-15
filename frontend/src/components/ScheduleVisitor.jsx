@@ -55,7 +55,7 @@ const handleSubmit = async () => {
         "Kr_Xjtes6GaipRqxB"
       );
     }
-    console.log(process.env.REACT_APP_EMAILJS_PUBLIC_KEY);
+    
 
     //  Show success alert
     alert("Visitor scheduled successfully and email sent!");
@@ -145,6 +145,7 @@ const handleSubmit = async () => {
     </div>
   );
 }
+
 
 
 
