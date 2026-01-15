@@ -29,7 +29,8 @@ exports.scanQR = async (req, res) => {
       return res.status(400).json({ msg: "Invalid QR code" });
     }
 
-    const visitor = await Visitor.findById(data.visitorId);
+    const visitor = await Visitor.findById(qrPayload);
+
     if (!visitor) return res.status(404).json({ msg: "Visitor not found" });
 
     let log = await CheckLog.findOne({
@@ -120,6 +121,7 @@ exports.getVisitorLogs = async (req, res) => {
     res.status(500).json({ msg: "Server error", error: err.message });
   }
 };
+
 
 
 
