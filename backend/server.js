@@ -15,7 +15,7 @@ const app = express();
 
 app.use(express.json());
 app.use(cors({
-  origin: "https://visit-two-peach.vercel.app/",
+  origin: "https://visit-two-peach.vercel.app",
   methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
   credentials: true
 }));
@@ -36,6 +36,7 @@ app.use("/api", otpRoutes);
 
 
 app.listen(5000, () => console.log("Server running on port 5000"));
+
 
 
 
