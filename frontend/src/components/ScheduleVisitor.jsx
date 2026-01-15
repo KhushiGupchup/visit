@@ -65,10 +65,10 @@ export default function ScheduleVisitor() {
             templateParams,
             process.env.REACT_APP_EMAILJS_PUBLIC_KEY
           );
-          setStatus("Visitor Pass Sent Successfully ✅");
+          setStatus("Visitor Pass Sent Successfully ");
         } catch (emailError) {
           console.error("EmailJS error:", emailError);
-          setStatus("Failed to send email ❌");
+          setStatus("Failed to send email ");
         }
       }
 
@@ -153,3 +153,4 @@ export default function ScheduleVisitor() {
     </div>
   );
 }
+
