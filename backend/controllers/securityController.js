@@ -22,50 +22,51 @@ exports.scanQR = async (req, res) => {
     const { qrPayload } = req.body;
     if (!qrPayload) return res.status(400).json({ msg: "QR payload missing" });
 
-    const data = JSON.parse(qrPayload);
+    let data;
+    try {
+      data = JSON.parse(qrPayload);
+    } catch {
+      return res.status(400).json({ msg: "Invalid QR code" });
+    }
+
     const visitor = await Visitor.findById(data.visitorId);
     if (!visitor) return res.status(404).json({ msg: "Visitor not found" });
 
-    let log = await CheckLog.findOne({ visitor: visitor._id });
+    let log = await CheckLog.findOne({
+      visitor: visitor._id,
+      checkOut: { $exists: false },
+    });
+
+    let msg;
 
     if (!log) {
-      // First time check-in
       log = await CheckLog.create({
         visitor: visitor._id,
         checkIn: new Date(),
         scannedBy: req.user.id,
       });
-    } else if (!log.checkOut) {
-      // Check-out
+      msg = "Visitor Checked In";
+    } else {
       log.checkOut = new Date();
       await log.save();
-    } else {
-      // Already checked out
+      msg = "Visitor Checked Out";
     }
 
-    // get the visitor info
     log = await log.populate("visitor", "name email");
 
-    // Restructure log for front-end: put name/email at root
-    const formattedLog = {
-  _id: log._id,
-  name: log.visitor?.name || "Unknown",
-  email: log.visitor?.email || "Unknown",
-  checkIn: log.checkIn,
-  checkOut: log.checkOut,
-  scannedBy: log.scannedBy,
-};
-
-    console.log(formattedLog);
-    // Determine message
-    let msg = "Visitor already checked out";
-    if (!log.checkOut) msg = "Visitor Checked In";
-    else if (log.checkOut && log.checkIn) msg = "Visitor Checked Out";
-
-    return res.json({ msg, log: formattedLog });
+    res.json({
+      msg,
+      log: {
+        _id: log._id,
+        name: log.visitor?.name,
+        email: log.visitor?.email,
+        checkIn: log.checkIn,
+        checkOut: log.checkOut,
+      },
+    });
 
   } catch (err) {
-    console.error(err);
+    console.error("SCAN ERROR:", err);
     res.status(500).json({ msg: "Server error", error: err.message });
   }
 };
@@ -119,6 +120,7 @@ exports.getVisitorLogs = async (req, res) => {
     res.status(500).json({ msg: "Server error", error: err.message });
   }
 };
+
 
 
 
