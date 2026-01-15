@@ -96,8 +96,8 @@ exports.scheduleVisitor = async (req, res) => {
     });
 
        // Only store visitorId in QR 
-    const qrPayload = JSON.stringify({ visitorId: visitor._id });
-    const qrBase64 = await generateQRBase64(qrPayload);
+     const qrPayload = visitor._id.toString();
+      const qrBase64 = await generateQRBase64(qrPayload);
 
     // (Optional) store QR in DB
     visitor.qrData = qrBase64;
@@ -390,6 +390,7 @@ exports.rejectVisitor = async (req, res) => {
 //     res.status(500).json({ msg: "Server Error" });
 //   }
 // };
+
 
 
 
