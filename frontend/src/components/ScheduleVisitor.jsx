@@ -31,15 +31,15 @@ export default function ScheduleVisitor() {
       return;
     }
 
-    if (
-      !process.env.REACT_APP_EMAILJS_SERVICE_ID ||
-      !process.env.REACT_APP_EMAILJS_TEMPLATE_ID ||
-      !process.env.REACT_APP_EMAILJS_PUBLIC_KEY
-    ) {
-      console.error("EmailJS environment variables are missing!");
-      setStatus("Email service not configured. Contact admin.");
-      return;
-    }
+    // if (
+    //   !process.env.REACT_APP_EMAILJS_SERVICE_ID ||
+    //   !process.env.REACT_APP_EMAILJS_TEMPLATE_ID ||
+    //   !process.env.REACT_APP_EMAILJS_PUBLIC_KEY
+    // ) {
+    //   console.error("EmailJS environment variables are missing!");
+    //   setStatus("Email service not configured. Contact admin.");
+    //   return;
+    // }
 
     setLoading(true);
     setStatus("");
@@ -60,10 +60,10 @@ export default function ScheduleVisitor() {
 
         try {
           await emailjs.send(
-            process.env.REACT_APP_EMAILJS_SERVICE_ID,
-            process.env.REACT_APP_EMAILJS_TEMPLATE_ID,
+            "service_rfost09",
+            "template_hptua9m",
             templateParams,
-            process.env.REACT_APP_EMAILJS_PUBLIC_KEY
+            "Kr_Xjtes6GaipRqxB"
           );
           setStatus("Visitor Pass Sent Successfully ");
         } catch (emailError) {
@@ -153,4 +153,5 @@ export default function ScheduleVisitor() {
     </div>
   );
 }
+
 
