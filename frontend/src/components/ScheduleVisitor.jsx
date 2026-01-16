@@ -60,11 +60,14 @@ export default function ScheduleVisitor() {
 
         try {
           await emailjs.send(
-            process.env.REACT_APP_EMAILJS_SERVICE_ID,
-            process.env.REACT_APP_EMAILJS_TEMPLATE_ID,
+            import.meta.env.VITE_EMAILJS_SERVICE_ID,
+            import.meta.env.VITE_EMAILJS_TEMPLATE_ID,
             templateParams,
             "Kr_Xjtes6GaipRqxB"
           );
+
+
+
           setStatus("Visitor Pass Sent Successfully ");
         } catch (emailError) {
           console.error("EmailJS error:", emailError);
@@ -153,6 +156,5 @@ export default function ScheduleVisitor() {
     </div>
   );
 }
-
 
 
