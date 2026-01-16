@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const sendEmail = require("../utils/sendEmail");
+// const sendEmail = require("../utils/sendEmail");
 
 const otpStore = {};
 router.post("/send-otp", async (req, res) => {
@@ -18,11 +18,11 @@ router.post("/send-otp", async (req, res) => {
         expires: Date.now() + 5 * 60 * 1000
     };
 //send otp to taken email
-    await sendEmail(
-        email,
-        "Your OTP Code",
-        `<p>Your OTP is <strong>${otp}</strong>.</p>`
-    );
+    // await sendEmail(
+    //     email,
+    //     "Your OTP Code",
+    //     `<p>Your OTP is <strong>${otp}</strong>.</p>`
+    // );
     res.json({ message: "OTP sent successfully" });
 });
 router.post("/verify-otp", (req, res) => {
@@ -46,3 +46,4 @@ if (record.otp !== otp) {
 });
 
 module.exports = router;
+
