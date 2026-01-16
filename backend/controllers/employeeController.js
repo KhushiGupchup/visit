@@ -259,68 +259,6 @@ exports.deleteVisitor = async (req, res) => {
   }
 };
 
-// Approve Visitor
-
-// exports.approveVisitor = async (req, res) => {
-//   try {
-//     const { visitorId } = req.params;
-//     const visitor = await Visitor.findById(visitorId);
-//     if (!visitor) return res.status(404).json({ msg: "Visitor not found" });
-
-//     const host = await User.findOne({ empId: visitor.hostEmpId });
-//     const alreadyApproved = visitor.status === "approved";
-
-//     visitor.status = "approved";
-
-//     // Generate QR if missing
-//     if (!visitor.qrData) {
-//       visitor.qrData = await generateQRBase64(JSON.stringify({ visitorId }));
-//     }
-
-//     // Generate PDF & PNG in memory
-//     const pdfBuffer = await generatePDF({ ...visitor._doc, hostName: host?.name }, visitor.qrData);
-//     const passImage = await generateVisitorPassImage({ ...visitor._doc, hostName: host?.name });
-//     const qrBuffer = Buffer.from(visitor.qrData.split(",")[1], "base64");
-
-//     visitor.passPdf = null;
-//     visitor.passImage = null;
-//     await visitor.save();
-
-//     // Send email
-//     if (visitor.email) {
-//       const emailHTML = `
-//         <div style="max-width:400px;margin:0 auto;font-family:sans-serif;border:1px solid #e0e0e0;border-radius:12px;overflow:hidden;">
-//           <div style="background:#3b82f6;color:white;text-align:center;padding:16px;font-size:20px;font-weight:bold;">
-//             VPMS Visitor Pass
-//           </div>
-//           <div style="padding:16px;text-align:center;">
-//             <img src="cid:visitor_pass" alt="Visitor Pass" style="width:300px;height:auto;" />
-//           </div>
-//           <div style="background:#10b981;color:white;text-align:center;padding:12px;font-size:20px;font-weight:bold">
-//             Please show this pass at the entrance.
-//           </div>
-//         </div>
-//       `;
-
-//       await sendEmail(visitor.email, "Your VPMS Visitor Pass", emailHTML, [
-//         { filename: "VisitorPass.png", content: passImage, cid: "visitor_pass" },
-//         { filename: "VisitorPass.pdf", content: pdfBuffer },
-//         { filename: "VisitorQR.png", content: qrBuffer, cid: "visitor_qr" },
-//       ]);
-//     }
-
-//     res.json({
-//       msg: alreadyApproved ? "Visitor is already approved" : "Visitor approved successfully",
-//       visitor,
-//     });
-//   } catch (err) {
-//     console.error("Approve Visitor Error:", err);
-//     res.status(500).json({ msg: "Server error", error: err.message });
-//   }
-// };
-
-
-
 
 //  Reject Visitor 
 exports.rejectVisitor = async (req, res) => {
@@ -356,6 +294,7 @@ exports.rejectVisitor = async (req, res) => {
     res.status(500).json({ msg: "Server error", error: err.message });
   }
 };
+
 
 
 
