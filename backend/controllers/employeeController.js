@@ -5,9 +5,7 @@ const path = require("path");
 const fs = require("fs");
 
 const { generateQRBase64 } = require("../utils/generateQR");
-const { generatePDF } = require("../utils/generatePDF");
-const { generateVisitorPassImage } = require("../utils/paasImage");
-const sendEmail = require("../utils/sendEmail");
+
 
 //Dashboard 
 
@@ -138,45 +136,10 @@ exports.approveVisitor = async (req, res) => {
     }
     const qrBuffer = Buffer.from(visitor.qrData.split(",")[1], "base64");
 
-    // Generate PDF & Visitor Pass PNG
-    const pdfBuffer = await generatePDF({ ...visitor._doc, hostName: host?.name }, visitor.qrData);
-    const passImageBuffer = await generateVisitorPassImage({ ...visitor._doc, hostName: host?.name });
-
-    // Optionally clear old attachments from DB
-    visitor.passPdf = null;
-    visitor.passImage = null;
+   
     await visitor.save();
 
-    // Send email if email exists
-    if (visitor.email) {
-      const emailHTML = `
-        <div style="max-width:420px;margin:auto;font-family:sans-serif;border:1px solid #ddd;border-radius:10px">
-          <div style="background:#2563eb;color:white;padding:14px;text-align:center;font-size:20px;font-weight:bold">
-            VPMS Visitor Pass
-          </div>
-
-          <div style="padding:16px;text-align:center">
-            <img src="cid:visitor_pass" width="380" />
-          </div>
-
-          <div style="text-align:center;padding-bottom:16px">
-            <img src="cid:visitor_qr" width="150" />
-          </div>
-
-          <div style="background:#16a34a;color:white;text-align:center;padding:12px;font-weight:bold">
-            Show this pass at the entrance
-          </div>
-        </div>
-      `;
-
-      await sendEmail(visitor.email, "Your VPMS Visitor Pass", emailHTML, [
-        { filename: "VisitorPass.pdf", content: pdfBuffer },
-        { filename: "VisitorPass.png", content: passImageBuffer, cid: "visitor_pass" },
-        { filename: "VisitorQR.png", content: qrBuffer, cid: "visitor_qr" },
-      ]);
-    }
-
-    res.json({
+     res.json({
       msg: alreadyApproved ? "Visitor is already approved" : "Visitor approved successfully",
       visitor,
     });
