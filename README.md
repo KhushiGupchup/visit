@@ -1,6 +1,6 @@
 # visit
 
-Demo Live Link : https://visiopassmanagementnew.netlify.app/
+Demo Live Link : https://visit-two-peach.vercel.app/
 
 Demo Video Link : https://docs.google.com/videos/d/17dBSISNCYHraQxbKREjPW2-41TvhuBcFEvFYc3rxKKs/edit?usp=sharing
 
