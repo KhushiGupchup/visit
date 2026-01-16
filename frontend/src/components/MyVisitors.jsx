@@ -5,6 +5,8 @@ import SidebarEmployee from "../components/EmployeeSidebar.jsx";
 import Topbar from "./Topbar.jsx";
 import api from "../utils/api.js";
 import toast from "react-hot-toast";
+import emailjs from "@emailjs/browser";
+
 
 
 import { AuthContext } from "../context/AuthContext.jsx";
@@ -51,10 +53,35 @@ export default function MyVisitors() {
     try {
       let res;
 
-      if (action === "approve") {
+           if (action === "approve") {
         res = await api.post(`/employee/approve-visitor/${visitor._id}`);
-        toast.success(res.data.msg);
+      
+        
+        const approvedVisitor = res.data.visitor;
+        const qrBase64 = res.data.qr; 
+      
+        // Send Email
+        try {
+          await emailjs.send(
+            import.meta.env.VITE_EMAILJS_SERVICE_ID,
+            import.meta.env.VITE_EMAILJS_TEMPLATE_ID,
+            {
+              to_name: approvedVisitor.name,
+              email: approvedVisitor.email,
+              purpose: approvedVisitor.purpose,
+              scheduledAt: approvedVisitor.scheduledAt,
+              qr: qrBase64,
+            },
+            import.meta.env.VITE_EMAILJS_PUBLIC_KEY
+          );
+      
+          toast.success("Visitor approved & email sent ");
+        } catch (emailErr) {
+          console.error("Email error:", emailErr);
+          toast.error("Approved but email failed ");
+        }
       }
+
 
       else if (action === "reject") {
         res = await api.patch(`/employee/reject-visitor/${visitor._id}`);
@@ -476,6 +503,7 @@ export default function MyVisitors() {
     </div>
   );
 }
+
 
 
 
