@@ -1,7 +1,7 @@
 const User = require("../models/User");
 const Visitor = require("../models/Visitor");
 const bcrypt = require("bcryptjs");
-const sendEmail = require("../utils/sendEmail");
+
 
 // Dashboard 
 exports.dashboard = async (req, res) => {
@@ -51,17 +51,17 @@ exports.addEmployee = async (req, res) => {
     });
 
     // Send login details to email anf one time password randomly genaerated
-    await sendEmail(
-      email,
-      "Your Login Credentials",
-      `
-        <h2>Your Account Has Been Created</h2>
-        <p><b>Employee ID:</b> ${nextEmpId}</p>
-        <p><b>Email:</b> ${email}</p>
-        <p><b>Password:</b> ${password}</p>
-        <p><b>Role:</b> ${role || "employee"}</p>
-      `
-    );
+    // await sendEmail(
+    //   email,
+    //   "Your Login Credentials",
+    //   `
+    //     <h2>Your Account Has Been Created</h2>
+    //     <p><b>Employee ID:</b> ${nextEmpId}</p>
+    //     <p><b>Email:</b> ${email}</p>
+    //     <p><b>Password:</b> ${password}</p>
+    //     <p><b>Role:</b> ${role || "employee"}</p>
+    //   `
+    // );
 
     res.json({
       msg: "Employee added successfully",
@@ -225,6 +225,7 @@ exports.reports = async (req, res) => {
     res.status(500).json({ msg: "Error generating reports", error: err.message });
   }
 };
+
 
 
 
